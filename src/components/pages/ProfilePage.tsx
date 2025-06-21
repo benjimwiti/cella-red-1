@@ -1,7 +1,8 @@
 
-import { Bell, Calendar, Users, Download, Settings, LogOut } from "lucide-react";
+import { Bell, Calendar, Users, Download, Settings, LogOut, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface ProfilePageProps {
   profileType: 'patient' | 'caregiver';
@@ -9,6 +10,9 @@ interface ProfilePageProps {
 }
 
 const ProfilePage = ({ profileType, onProfileChange }: ProfilePageProps) => {
+  // Default to female avatar, but this could be user-selectable
+  const avatarImage = "/lovable-uploads/c59e64c1-b31d-4b6c-9512-be81ef112725.png";
+  
   const profileOptions = [
     { icon: Calendar, title: "Appointments", subtitle: "Manage doctor visits", action: () => {} },
     { icon: Users, title: "Emergency Contacts", subtitle: "Setup emergency contacts", action: () => {} },
@@ -24,6 +28,33 @@ const ProfilePage = ({ profileType, onProfileChange }: ProfilePageProps) => {
         <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
         <p className="text-cella-grey">Manage your account and preferences</p>
       </div>
+
+      {/* Profile Avatar & Info */}
+      <Card className="glass-effect">
+        <CardContent className="p-6">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="relative">
+              <Avatar className="w-20 h-20 ring-4 ring-cella-rose/20">
+                <AvatarImage src={avatarImage} alt="Profile Avatar" />
+                <AvatarFallback className="bg-cella-rose text-white text-2xl">
+                  {profileType === 'patient' ? 'W' : 'C'}
+                </AvatarFallback>
+              </Avatar>
+              <Button 
+                size="icon" 
+                variant="outline" 
+                className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white border-2 border-cella-rose"
+              >
+                <Camera className="w-3 h-3" />
+              </Button>
+            </div>
+            <div className="text-center">
+              <h3 className="font-semibold text-gray-900 capitalize">{profileType}</h3>
+              <p className="text-sm text-cella-grey">Tap camera icon to change avatar</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Profile Type */}
       <Card className="glass-effect">

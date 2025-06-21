@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Bell, AlertTriangle, Heart, Droplet, Pill, Utensils, CloudSun } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import RiskIndicator from "@/components/RiskIndicator";
 import QuickActionCard from "@/components/QuickActionCard";
 import SOSButton from "@/components/SOSButton";
@@ -18,14 +19,20 @@ const HomePage = ({ profileType }: HomePageProps) => {
   const currentHour = new Date().getHours();
   const greeting = currentHour < 12 ? 'Good morning' : currentHour < 18 ? 'Good afternoon' : 'Good evening';
 
+  // Default to female avatar, but this could be user-selectable
+  const avatarImage = "/lovable-uploads/c59e64c1-b31d-4b6c-9512-be81ef112725.png";
+
   return (
     <div className="min-h-screen p-4 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between pt-2">
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-cella-rose rounded-full flex items-center justify-center">
-            <Heart className="w-6 h-6 text-white" />
-          </div>
+          <Avatar className="w-12 h-12 ring-2 ring-cella-rose/20">
+            <AvatarImage src={avatarImage} alt="User Avatar" />
+            <AvatarFallback className="bg-cella-rose text-white">
+              <Heart className="w-6 h-6" />
+            </AvatarFallback>
+          </Avatar>
           <div>
             <h1 className="text-xl font-bold text-gray-900">{greeting}, {userName}!</h1>
             <p className="text-sm text-cella-grey">How are you feeling today?</p>
