@@ -39,6 +39,16 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
     onComplete(profile || { email });
   };
 
+  const handleSkipDemo = () => {
+    // Skip authentication with demo data
+    onComplete({
+      fullName: "Demo User",
+      email: "demo@example.com",
+      gender: "female",
+      role: "warrior"
+    });
+  };
+
   if (step === "success") {
     return (
       <AuthLayout
@@ -69,7 +79,7 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
   }
 
   if (step === "email") {
-    return <EmailStep onNext={handleEmailNext} isLogin={isLogin} />;
+    return <EmailStep onNext={handleEmailNext} onSkipDemo={handleSkipDemo} isLogin={isLogin} />;
   }
 
   if (step === "verification") {

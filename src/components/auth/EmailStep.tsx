@@ -7,10 +7,11 @@ import AuthLayout from "./AuthLayout";
 
 interface EmailStepProps {
   onNext: (email: string) => void;
+  onSkipDemo?: () => void;
   isLogin?: boolean;
 }
 
-const EmailStep = ({ onNext, isLogin = false }: EmailStepProps) => {
+const EmailStep = ({ onNext, onSkipDemo, isLogin = false }: EmailStepProps) => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -23,6 +24,12 @@ const EmailStep = ({ onNext, isLogin = false }: EmailStepProps) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     setIsLoading(false);
     onNext(email);
+  };
+
+  const handleSkipDemo = () => {
+    if (onSkipDemo) {
+      onSkipDemo();
+    }
   };
 
   return (
@@ -53,6 +60,17 @@ const EmailStep = ({ onNext, isLogin = false }: EmailStepProps) => {
         >
           {isLoading ? "Sending..." : isLogin ? "Send Login Code" : "Continue"}
         </Button>
+
+        {onSkipDemo && (
+          <Button 
+            type="button"
+            variant="outline"
+            onClick={handleSkipDemo}
+            className="w-full h-12 border-cella-rose text-cella-rose hover:bg-cella-rose hover:text-white"
+          >
+            Skip for Demo
+          </Button>
+        )}
 
         {isLogin && (
           <p className="text-center text-sm text-cella-grey">
