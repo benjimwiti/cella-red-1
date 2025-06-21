@@ -105,4 +105,8 @@
   .card-hover {
     @apply transition-all duration-200 hover:shadow-lg hover:scale-[1.02];
   }
+  
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }

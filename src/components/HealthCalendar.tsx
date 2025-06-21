@@ -1,9 +1,12 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const HealthCalendar = () => {
+interface HealthCalendarProps {
+  onDateSelect?: (date: Date) => void;
+}
+
+const HealthCalendar = ({ onDateSelect }: HealthCalendarProps) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   
   // Sample health data - in a real app this would come from your database
@@ -54,6 +57,7 @@ const HealthCalendar = () => {
       const dateKey = formatDateKey(currentDate.getFullYear(), currentDate.getMonth(), day);
       const dayData = healthData[dateKey];
       const isToday = new Date().toDateString() === new Date(currentDate.getFullYear(), currentDate.getMonth(), day).toDateString();
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
 
       days.push(
         <div
@@ -61,6 +65,7 @@ const HealthCalendar = () => {
           className={`h-12 flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all hover:bg-gray-50 ${
             isToday ? 'bg-cella-rose text-white' : ''
           }`}
+          onClick={() => onDateSelect?.(date)}
         >
           <span className="text-sm font-medium">{day}</span>
           {dayData && (
