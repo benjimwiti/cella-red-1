@@ -1,5 +1,5 @@
 
-import { Bell, Calendar, Users, Download, Settings, LogOut, Camera } from "lucide-react";
+import { Bell, Calendar, Users, Download, Settings, LogOut, Camera, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -23,10 +23,20 @@ const ProfilePage = ({ profileType, onProfileChange }: ProfilePageProps) => {
 
   return (
     <div className="min-h-screen p-4 space-y-6">
-      {/* Header */}
-      <div className="pt-2">
-        <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-        <p className="text-cella-grey">Manage your account and preferences</p>
+      {/* Header with Back Button */}
+      <div className="flex items-center pt-2">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="mr-3"
+          onClick={() => window.history.back()}
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
+          <p className="text-cella-grey">Manage your account and preferences</p>
+        </div>
       </div>
 
       {/* Profile Avatar & Info */}

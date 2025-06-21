@@ -8,17 +8,31 @@ import AskCellaPage from '@/components/pages/AskCellaPage';
 import HealthLogsPage from '@/components/pages/HealthLogsPage';
 import ProfilePage from '@/components/pages/ProfilePage';
 import CaregiverDashboard from '@/components/CaregiverDashboard';
+import AuthFlow from '@/components/auth/AuthFlow';
 
 const Index = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [profileType, setProfileType] = useState<'patient' | 'caregiver' | null>(null);
   const [activeTab, setActiveTab] = useState('home');
   const [showCaregiverDashboard, setShowCaregiverDashboard] = useState(false);
+
+  const handleAuthComplete = (profile: any) => {
+    setUserProfile(profile);
+    setIsAuthenticated(true);
+  };
 
   const handleProfileSelect = (type: 'patient' | 'caregiver') => {
     setProfileType(type);
     setShowCaregiverDashboard(type === 'caregiver');
   };
 
+  // Show auth flow if not authenticated
+  if (!isAuthenticated) {
+    return <AuthFlow onComplete={handleAuthComplete} />;
+  }
+
+  // Show profile selector if authenticated but no profile type selected
   if (!profileType) {
     return <ProfileSelector onProfileSelect={handleProfileSelect} />;
   }
@@ -50,6 +64,14 @@ const Index = () => {
         return <HealthLogsPage />;
       case 'profile':
         return <ProfilePage profileType={profileType} onProfileChange={(type) => {
+          if (type === null) {
+            // Sign out
+            setIsAuthenticated(false);
+            setUserProfile(null);
+            setProfileType(null);
+            setShowCaregiverDashboard(false);
+            return;
+          }
           setProfileType(type);
           if (type === 'caregiver') {
             setShowCaregiverDashboard(true);
