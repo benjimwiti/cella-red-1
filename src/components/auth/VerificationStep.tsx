@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import AuthLayout from "./AuthLayout";
 
 interface VerificationStepProps {
@@ -16,6 +18,8 @@ const VerificationStep = ({ email, onNext, onBack, isLogin = false }: Verificati
   const [isLoading, setIsLoading] = useState(false);
   const [canResend, setCanResend] = useState(false);
   const [countdown, setCountdown] = useState(30);
+  const { signIn, sendOTP } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -36,16 +40,47 @@ const VerificationStep = ({ email, onNext, onBack, isLogin = false }: Verificati
     if (code.length !== 6) return;
     
     setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    onNext();
+    
+    try {
+      const { error } = await signIn(email, code);
+      
+      if (error) {
+        toast({
+          title: "Invalid code",
+          description: "Please check your code and try again.",
+          variant: "destructive"
+        });
+      } else {
+        onNext();
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     setCanResend(false);
     setCountdown(30);
-    // Simulate resend
+    
+    const { error } = await sendOTP(email);
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Code sent!",
+        description: "A new verification code has been sent to your email."
+      });
+    }
   };
 
   return (

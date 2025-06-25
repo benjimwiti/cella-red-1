@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import ProfileSelector from '@/components/ProfileSelector';
 import BottomNavigation from '@/components/BottomNavigation';
 import HomePage from '@/components/pages/HomePage';
@@ -11,7 +12,7 @@ import CaregiverDashboard from '@/components/CaregiverDashboard';
 import AuthFlow from '@/components/auth/AuthFlow';
 
 const Index = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, loading } = useAuth();
   const [userProfile, setUserProfile] = useState<any>(null);
   const [profileType, setProfileType] = useState<'patient' | 'caregiver' | null>(null);
   const [activeTab, setActiveTab] = useState('home');
@@ -19,7 +20,6 @@ const Index = () => {
 
   const handleAuthComplete = (profile: any) => {
     setUserProfile(profile);
-    setIsAuthenticated(true);
   };
 
   const handleProfileSelect = (type: 'patient' | 'caregiver') => {
@@ -27,8 +27,20 @@ const Index = () => {
     setShowCaregiverDashboard(type === 'caregiver');
   };
 
+  // Show loading while checking auth state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-cella-rose-light to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cella-rose mx-auto"></div>
+          <p className="mt-2 text-cella-grey">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Show auth flow if not authenticated
-  if (!isAuthenticated) {
+  if (!user) {
     return <AuthFlow onComplete={handleAuthComplete} />;
   }
 
@@ -66,7 +78,6 @@ const Index = () => {
         return <ProfilePage profileType={profileType} onProfileChange={(type) => {
           if (type === null) {
             // Sign out
-            setIsAuthenticated(false);
             setUserProfile(null);
             setProfileType(null);
             setShowCaregiverDashboard(false);
