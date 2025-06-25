@@ -1,124 +1,203 @@
 
-import { useState } from "react";
-import { Send, Mic, Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Send, MessageCircle, AlertTriangle, Heart } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { AIService } from '@/services/aiService';
+import { useToast } from '@/hooks/use-toast';
+import { useQuery } from '@tanstack/react-query';
 
 const AskCellaPage = () => {
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      type: 'bot',
-      content: "Hi there! I'm Cella, your health companion. How can I help you today?",
-      timestamp: new Date(),
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [question, setQuestion] = useState('');
+  const [currentAnswer, setCurrentAnswer] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { data: chatHistory = [] } = useQuery({
+    queryKey: ['chat-history', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      return await AIService.getChatHistory(user.id, 10);
+    },
+    enabled: !!user?.id,
+  });
+
+  const handleAskQuestion = async (messageType: 'question' | 'emergency' | 'general' = 'question') => {
+    if (!question.trim() || !user?.id) return;
+
+    setIsLoading(true);
+    try {
+      const response = await AIService.askCella(user.id, question, messageType);
+      setCurrentAnswer(response);
+      setQuestion('');
+      
+      // Refresh chat history
+      // queryClient.invalidateQueries(['chat-history', user.id]);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to get response from Cella. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-  ]);
-
-  const quickQuestions = [
-    "What are signs of a crisis?",
-    "Best foods for sickle cell?",
-    "How much water should I drink?",
-    "When to call the doctor?",
-  ];
-
-  const handleSendMessage = () => {
-    if (!message.trim()) return;
-    
-    const newMessage = {
-      id: messages.length + 1,
-      type: 'user',
-      content: message,
-      timestamp: new Date(),
-    };
-    
-    setMessages([...messages, newMessage]);
-    setMessage("");
-    
-    // Simulate bot response
-    setTimeout(() => {
-      const botResponse = {
-        id: messages.length + 2,
-        type: 'bot',
-        content: "That's a great question! Based on your health data, I recommend...",
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, botResponse]);
-    }, 1000);
   };
 
-  return (
-    <div className="flex flex-col h-screen">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-md border-b border-gray-200 p-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-cella-rose rounded-full flex items-center justify-center">
-            <Heart className="w-5 h-5 text-white animate-pulse" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-gray-900">Ask Cella</h1>
-            <p className="text-sm text-cella-grey">Your AI health companion</p>
-          </div>
-        </div>
-      </div>
+  const quickQuestions = [
+    "How can I prevent pain crises?",
+    "What foods should I avoid?",
+    "How much water should I drink daily?",
+    "When should I call my doctor?",
+    "What are good exercises for me?",
+  ];
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg) => (
-          <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] p-3 rounded-lg ${
-              msg.type === 'user' 
-                ? 'bg-cella-rose text-white' 
-                : 'bg-white shadow-sm border'
-            }`}>
-              <p className="text-sm">{msg.content}</p>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-white via-cella-rose-light to-white">
+      <div className="p-6 space-y-6">
+        {/* Header */}
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center mb-4">
+            <div className="bg-cella-rose rounded-full p-4">
+              <Heart className="w-8 h-8 text-white" />
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Quick Questions */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="flex flex-wrap gap-2 mb-4">
-          {quickQuestions.map((question, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              size="sm"
-              className="text-xs"
-              onClick={() => setMessage(question)}
-            >
-              {question}
-            </Button>
-          ))}
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Ask Cella</h1>
+          <p className="text-cella-grey">Your AI companion for sickle cell health guidance</p>
         </div>
 
-        {/* Input */}
-        <div className="flex items-center space-x-2">
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Ask me anything about sickle cell..."
-              className="w-full p-3 pr-12 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-cella-rose"
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-1 top-1/2 -translate-y-1/2"
-            >
-              <Mic className="w-4 h-4" />
-            </Button>
-          </div>
-          <Button
-            onClick={handleSendMessage}
-            className="w-12 h-12 rounded-full bg-cella-rose hover:bg-cella-rose-dark text-white"
-          >
-            <Send className="w-4 h-4" />
-          </Button>
-        </div>
+        {/* Emergency Alert */}
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-red-700">
+              <AlertTriangle className="w-5 h-5" />
+              <div className="text-sm">
+                <strong>Emergency?</strong> Call 911 or go to the nearest ER immediately if you're having a severe crisis.
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Current Answer */}
+        {currentAnswer && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-start gap-3">
+                <div className="bg-cella-rose rounded-full p-2 flex-shrink-0">
+                  <Heart className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-cella-rose mb-2">Cella's Response:</div>
+                  <div className="text-gray-700 leading-relaxed">{currentAnswer}</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Question Input */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  placeholder="Ask me about sickle cell health, pain management, lifestyle tips..."
+                  className="flex-1"
+                  onKeyPress={(e) => e.key === 'Enter' && handleAskQuestion()}
+                />
+                <Button
+                  onClick={() => handleAskQuestion()}
+                  disabled={!question.trim() || isLoading}
+                  className="bg-cella-rose hover:bg-cella-rose-dark"
+                >
+                  {isLoading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleAskQuestion('emergency')}
+                  disabled={!question.trim() || isLoading}
+                  className="border-red-200 text-red-600 hover:bg-red-50"
+                >
+                  <AlertTriangle className="w-3 h-3 mr-1" />
+                  Emergency
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleAskQuestion('general')}
+                  disabled={!question.trim() || isLoading}
+                >
+                  <MessageCircle className="w-3 h-3 mr-1" />
+                  General
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Questions */}
+        <Card>
+          <CardContent className="p-6">
+            <h3 className="font-medium mb-4">Quick Questions</h3>
+            <div className="space-y-2">
+              {quickQuestions.map((q, index) => (
+                <button
+                  key={index}
+                  onClick={() => setQuestion(q)}
+                  className="w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Chat History */}
+        {chatHistory.length > 0 && (
+          <Card>
+            <CardContent className="p-6">
+              <h3 className="font-medium mb-4">Recent Conversations</h3>
+              <div className="space-y-3">
+                {chatHistory.slice(0, 3).map((chat) => (
+                  <div key={chat.id} className="border-l-4 border-cella-rose-light pl-4">
+                    <div className="text-sm text-gray-600 mb-1">{chat.message}</div>
+                    <div className="text-xs text-cella-grey flex items-center gap-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {chat.message_type}
+                      </Badge>
+                      {new Date(chat.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Disclaimer */}
+        <Card className="border-gray-200 bg-gray-50">
+          <CardContent className="p-4">
+            <div className="text-xs text-gray-600 text-center">
+              <strong>Medical Disclaimer:</strong> Cella provides general health information and support. 
+              Always consult with your healthcare provider for medical advice, diagnosis, or treatment decisions.
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
