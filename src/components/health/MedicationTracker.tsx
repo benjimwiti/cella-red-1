@@ -67,7 +67,7 @@ const MedicationTracker = () => {
   };
 
   const isTakenToday = (medicationId: string) => {
-    return todayLogs.some(log => log.medication_id === medicationId);
+    return todayLogs.some((log: any) => log.medication_id === medicationId);
   };
 
   if (isLoading) {

@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { HydrationLog, Medication, MedicationLog, CrisisLog, Meal, Appointment } from '@/types/health';
 
@@ -94,14 +93,7 @@ export class HealthService {
   static async getMedicationLogs(userId: string, startDate?: string, endDate?: string) {
     let query = supabase
       .from('medication_logs')
-      .select(`
-        *,
-        medications (
-          name,
-          dosage,
-          frequency
-        )
-      `)
+      .select('*')
       .eq('user_id', userId)
       .order('taken_at', { ascending: false });
 
