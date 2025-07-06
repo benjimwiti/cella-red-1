@@ -75,6 +75,115 @@ export type Database = {
         }
         Relationships: []
       }
+      circle_invites: {
+        Row: {
+          circle_id: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          status: string
+        }
+        Insert: {
+          circle_id: string
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          status?: string
+        }
+        Update: {
+          circle_id?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circle_invites_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      circle_members: {
+        Row: {
+          circle_id: string
+          created_at: string
+          id: string
+          joined_at: string | null
+          role: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          circle_id: string
+          created_at?: string
+          id?: string
+          joined_at?: string | null
+          role?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          circle_id?: string
+          created_at?: string
+          id?: string
+          joined_at?: string | null
+          role?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circle_members_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      circles: {
+        Row: {
+          created_at: string
+          creator_id: string
+          description: string | null
+          emoji: string | null
+          id: string
+          invite_code: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          invite_code?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          invite_code?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       crisis_logs: {
         Row: {
           created_at: string | null

@@ -1,6 +1,7 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useSearchParams } from 'react-router-dom';
 import ProfileSelector from '@/components/ProfileSelector';
 import BottomNavigation from '@/components/BottomNavigation';
 import HomePage from '@/components/pages/HomePage';
@@ -14,11 +15,20 @@ import AuthFlow from '@/components/auth/AuthFlow';
 
 const Index = () => {
   const { user, loading } = useAuth();
+  const [searchParams] = useSearchParams();
   const [userProfile, setUserProfile] = useState<any>(null);
   const [profileType, setProfileType] = useState<'patient' | 'caregiver' | null>(null);
   const [activeTab, setActiveTab] = useState('home');
   const [showCaregiverDashboard, setShowCaregiverDashboard] = useState(false);
   const [showAuth, setShowAuth] = useState(true);
+
+  // Handle tab parameter for direct navigation
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['home', 'calendar', 'circle', 'ask-cella', 'health-logs', 'profile'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const handleAuthComplete = (profile: any) => {
     setUserProfile(profile);
