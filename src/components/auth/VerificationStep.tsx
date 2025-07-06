@@ -4,16 +4,18 @@ import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft } from "lucide-react";
 import AuthLayout from "./AuthLayout";
 
 interface VerificationStepProps {
   email: string;
   onNext: () => void;
   onBack: () => void;
+  onSkipDemo?: () => void;
   isLogin?: boolean;
 }
 
-const VerificationStep = ({ email, onNext, onBack, isLogin = false }: VerificationStepProps) => {
+const VerificationStep = ({ email, onNext, onBack, onSkipDemo, isLogin = false }: VerificationStepProps) => {
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [canResend, setCanResend] = useState(false);
@@ -51,6 +53,10 @@ const VerificationStep = ({ email, onNext, onBack, isLogin = false }: Verificati
           variant: "destructive"
         });
       } else {
+        toast({
+          title: "Success! ✅",
+          description: "Code verified successfully."
+        });
         onNext();
       }
     } catch (error) {
@@ -77,7 +83,7 @@ const VerificationStep = ({ email, onNext, onBack, isLogin = false }: Verificati
       });
     } else {
       toast({
-        title: "Code sent!",
+        title: "Code sent! 💧",
         description: "A new verification code has been sent to your email."
       });
     }
@@ -90,54 +96,72 @@ const VerificationStep = ({ email, onNext, onBack, isLogin = false }: Verificati
       step={isLogin ? undefined : 2}
       totalSteps={isLogin ? undefined : 3}
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="flex justify-center">
-          <InputOTP maxLength={6} value={code} onChange={setCode}>
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
-            </InputOTPGroup>
-          </InputOTP>
-        </div>
+      <div className="bg-white rounded-2xl shadow-card p-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="flex justify-center">
+            <InputOTP maxLength={6} value={code} onChange={setCode}>
+              <InputOTPGroup className="gap-3">
+                <InputOTPSlot index={0} className="w-14 h-14 text-xl border-brand-grey focus:border-brand-red" />
+                <InputOTPSlot index={1} className="w-14 h-14 text-xl border-brand-grey focus:border-brand-red" />
+                <InputOTPSlot index={2} className="w-14 h-14 text-xl border-brand-grey focus:border-brand-red" />
+                <InputOTPSlot index={3} className="w-14 h-14 text-xl border-brand-grey focus:border-brand-red" />
+                <InputOTPSlot index={4} className="w-14 h-14 text-xl border-brand-grey focus:border-brand-red" />
+                <InputOTPSlot index={5} className="w-14 h-14 text-xl border-brand-grey focus:border-brand-red" />
+              </InputOTPGroup>
+            </InputOTP>
+          </div>
 
-        <Button 
-          type="submit" 
-          className="w-full h-12 bg-cella-rose hover:bg-cella-rose-dark text-white"
-          disabled={isLoading || code.length !== 6}
-        >
-          {isLoading ? "Verifying..." : "Verify & Continue"}
-        </Button>
+          <div className="space-y-4">
+            <Button 
+              type="submit" 
+              className="w-full h-14 brand-button text-lg font-semibold"
+              disabled={isLoading || code.length !== 6}
+            >
+              {isLoading ? "Verifying..." : "Verify & Continue"}
+            </Button>
 
-        <div className="text-center space-y-2">
-          <button
-            type="button"
-            onClick={onBack}
-            className="text-sm text-cella-grey hover:underline"
-          >
-            Change email address
-          </button>
-          
-          <div>
-            {canResend ? (
-              <button
+            {onSkipDemo && (
+              <Button 
                 type="button"
-                onClick={handleResend}
-                className="text-sm text-cella-rose hover:underline"
+                variant="outline"
+                onClick={onSkipDemo}
+                className="w-full h-14 brand-button-outline text-lg font-semibold"
               >
-                Resend code
-              </button>
-            ) : (
-              <p className="text-sm text-cella-grey">
-                Resend code in {countdown} seconds
-              </p>
+                Skip for Demo
+              </Button>
             )}
           </div>
-        </div>
-      </form>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={onBack}
+                className="flex items-center space-x-2 text-brand-charcoal/70 hover:text-brand-charcoal transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Change email</span>
+              </button>
+              
+              <div>
+                {canResend ? (
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    className="text-brand-red hover:underline font-medium"
+                  >
+                    Resend code
+                  </button>
+                ) : (
+                  <p className="text-sm text-brand-charcoal/70">
+                    Resend in {countdown}s
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
     </AuthLayout>
   );
 };

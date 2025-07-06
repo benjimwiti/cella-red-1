@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -66,23 +65,36 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Cella brand colors
+				// New Cella Design System Colors
+				brand: {
+					red: '#C42B2B',
+					charcoal: '#212121',
+					white: '#FFFFFF',
+					grey: '#E0E0E0',
+					success: '#4CAF50',
+					warning: '#FF9800',
+				},
+				// Deprecated - keeping for backwards compatibility
 				cella: {
-					rose: '#f4c2c2',
+					rose: '#C42B2B',
 					'rose-light': '#fdf2f2',
-					'rose-dark': '#e2a5a5',
-					grey: '#6b7280',
+					'rose-dark': '#a12828',
+					grey: '#E0E0E0',
 					'grey-light': '#f9fafb',
-					crisis: '#ef4444',
+					crisis: '#FF9800',
 					hydration: '#3b82f6',
-					healthy: '#10b981',
-					medication: '#f59e0b',
+					healthy: '#4CAF50',
+					medication: '#FF9800',
 				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			boxShadow: {
+				'subtle': '0 1px 3px rgba(0,0,0,0.1)',
+				'card': '0 2px 8px rgba(0,0,0,0.1)',
 			},
 			keyframes: {
 				'accordion-down': {

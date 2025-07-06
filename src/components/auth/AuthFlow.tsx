@@ -5,6 +5,7 @@ import VerificationStep from "./VerificationStep";
 import ProfileSetupStep from "./ProfileSetupStep";
 import AuthLayout from "./AuthLayout";
 import { Button } from "@/components/ui/button";
+import { Heart } from "lucide-react";
 
 interface AuthFlowProps {
   onComplete: (profile: any) => void;
@@ -23,7 +24,6 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
 
   const handleVerificationNext = () => {
     if (isLogin) {
-      // For login, skip profile setup and go directly to success
       setStep("success");
     } else {
       setStep("profile");
@@ -49,37 +49,74 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
     });
   };
 
+  // Skip for demo - advance to next step
+  const handleSkipToNext = () => {
+    if (step === "email") {
+      setEmail("demo@example.com");
+      setStep("verification");
+    } else if (step === "verification") {
+      setStep("profile");
+    } else if (step === "profile") {
+      handleProfileComplete({
+        fullName: "Demo User",
+        email: "demo@example.com",
+        gender: "female",
+        role: "warrior"
+      });
+    }
+  };
+
   if (step === "success") {
     return (
-      <AuthLayout
-        title={`Welcome to Cella${profile?.fullName ? `, ${profile.fullName}!` : '!'}`}
-        subtitle="Your health companion is ready to help you manage your sickle cell journey"
-      >
-        <div className="space-y-6">
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-lg">✓</span>
+      <div className="min-h-screen cella-gradient flex flex-col">
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-md animate-fade-in">
+            {/* Logo */}
+            <div className="text-center mb-12">
+              <div className="flex items-center justify-center mb-6">
+                <div className="bg-brand-red rounded-full p-4 shadow-card">
+                  <Heart className="w-8 h-8 text-white" />
+                </div>
               </div>
+              <h1 className="text-4xl font-bold text-brand-charcoal mb-2">Cella</h1>
             </div>
-            <p className="text-cella-grey">
-              {isLogin ? "Successfully signed in!" : "Account created successfully!"}
-            </p>
+
+            <div className="bg-white rounded-2xl shadow-card p-8 space-y-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-brand-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-8 h-8 bg-brand-success rounded-full flex items-center justify-center">
+                    <span className="text-white text-lg font-bold">✓</span>
+                  </div>
+                </div>
+                <h2 className="text-2xl font-bold text-brand-charcoal mb-2">
+                  Welcome to Cella{profile?.fullName ? `, ${profile.fullName}!` : '!'}
+                </h2>
+                <p className="text-brand-charcoal/70 leading-relaxed">
+                  🎉 You're all set up! Your health companion is ready to help you manage your sickle cell journey.
+                </p>
+              </div>
+              
+              <Button 
+                onClick={handleFinalComplete}
+                className="w-full h-14 brand-button text-lg font-semibold"
+              >
+                Get Started
+              </Button>
+            </div>
           </div>
-          
-          <Button 
-            onClick={handleFinalComplete}
-            className="w-full h-12 bg-cella-rose hover:bg-cella-rose-dark text-white"
-          >
-            Get Started
-          </Button>
         </div>
-      </AuthLayout>
+      </div>
     );
   }
 
   if (step === "email") {
-    return <EmailStep onNext={handleEmailNext} onSkipDemo={handleSkipDemo} isLogin={isLogin} />;
+    return (
+      <EmailStep 
+        onNext={handleEmailNext} 
+        onSkipDemo={handleSkipToNext}
+        isLogin={isLogin} 
+      />
+    );
   }
 
   if (step === "verification") {
@@ -88,6 +125,7 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
         email={email}
         onNext={handleVerificationNext}
         onBack={() => setStep("email")}
+        onSkipDemo={handleSkipToNext}
         isLogin={isLogin}
       />
     );
@@ -98,6 +136,7 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
       <ProfileSetupStep
         onComplete={handleProfileComplete}
         onBack={() => setStep("verification")}
+        onSkipDemo={handleSkipToNext}
       />
     );
   }

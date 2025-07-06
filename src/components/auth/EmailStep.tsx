@@ -36,7 +36,7 @@ const EmailStep = ({ onNext, onSkipDemo, isLogin = false }: EmailStepProps) => {
         });
       } else {
         toast({
-          title: "Code sent!",
+          title: "Code sent! 💧",
           description: "Check your email for the verification code."
         });
         onNext(email);
@@ -65,48 +65,54 @@ const EmailStep = ({ onNext, onSkipDemo, isLogin = false }: EmailStepProps) => {
       step={isLogin ? undefined : 1}
       totalSteps={isLogin ? undefined : 3}
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email address</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="h-12 text-base"
-            required
-          />
-        </div>
+      <div className="bg-white rounded-2xl shadow-card p-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-3">
+            <Label htmlFor="email" className="text-brand-charcoal font-medium">
+              Email address
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-14 text-base brand-input"
+              required
+            />
+          </div>
 
-        <Button 
-          type="submit" 
-          className="w-full h-12 bg-cella-rose hover:bg-cella-rose-dark text-white"
-          disabled={isLoading || !email}
-        >
-          {isLoading ? "Sending..." : isLogin ? "Send Login Code" : "Continue"}
-        </Button>
+          <div className="space-y-4">
+            <Button 
+              type="submit" 
+              className="w-full h-14 brand-button text-lg font-semibold"
+              disabled={isLoading || !email}
+            >
+              {isLoading ? "Sending..." : isLogin ? "Send Login Code" : "Continue"}
+            </Button>
 
-        {onSkipDemo && (
-          <Button 
-            type="button"
-            variant="outline"
-            onClick={handleSkipDemo}
-            className="w-full h-12 border-cella-rose text-cella-rose hover:bg-cella-rose hover:text-white"
-          >
-            Skip for Demo
-          </Button>
-        )}
+            {onSkipDemo && (
+              <Button 
+                type="button"
+                variant="outline"
+                onClick={handleSkipDemo}
+                className="w-full h-14 brand-button-outline text-lg font-semibold"
+              >
+                Skip for Demo
+              </Button>
+            )}
+          </div>
 
-        {isLogin && (
-          <p className="text-center text-sm text-cella-grey">
-            New here?{" "}
-            <button className="text-cella-rose hover:underline">
-              Sign up instead
-            </button>
-          </p>
-        )}
-      </form>
+          {isLogin && (
+            <p className="text-center text-sm text-brand-charcoal/70">
+              New here?{" "}
+              <button className="text-brand-red hover:underline font-medium">
+                Sign up instead
+              </button>
+            </p>
+          )}
+        </form>
+      </div>
     </AuthLayout>
   );
 };
