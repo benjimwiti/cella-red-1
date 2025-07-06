@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Trophy, Heart, ArrowLeft, Medal, Calendar, Users, Plus, Copy, Mail, CheckCircle } from "lucide-react";
+import { Trophy, Heart, ArrowLeft, Medal, Calendar, Users, Plus, Copy, Mail, CheckCircle, Clock, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -10,14 +10,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface CirclePageProps {
   profileType: 'patient' | 'caregiver';
 }
 
-type CircleView = 'empty' | 'create' | 'invite' | 'join' | 'members' | 'approval';
+type CircleView = 'empty' | 'create' | 'invite' | 'join' | 'join-waiting' | 'members' | 'approval';
 
-// Mock data for demo when no real circle exists
+// Mock data for demo
 const mockMembers = [
   {
     id: 1,
@@ -65,6 +66,7 @@ const reactions = [
 
 const CirclePage = ({ profileType }: CirclePageProps) => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const queryClient = useQueryClient();
   const [view, setView] = useState<CircleView>('empty');
   const [selectedReactions, setSelectedReactions] = useState<{[key: string]: string}>({});
@@ -75,6 +77,8 @@ const CirclePage = ({ profileType }: CirclePageProps) => {
   const [circleEmoji, setCircleEmoji] = useState("🏆");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteCode, setInviteCode] = useState("");
+  const [joinInviteLink, setJoinInviteLink] = useState("");
+  const [pendingRequests, setPendingRequests] = useState<any[]>([]);
 
   // Fetch user's circles
   const { data: userCircles, isLoading } = useQuery({
@@ -131,8 +135,6 @@ const CirclePage = ({ profileType }: CirclePageProps) => {
   // Send email invite mutation
   const sendInviteMutation = useMutation({
     mutationFn: async (email: string) => {
-      // Here you would typically call an edge function to send the email
-      // For now, we'll just create a record in the invites table
       const circle = userCircles?.[0];
       if (!circle) throw new Error('No circle found');
 
@@ -145,6 +147,13 @@ const CirclePage = ({ profileType }: CirclePageProps) => {
         });
 
       if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Invitation sent!",
+        description: "The invitation has been sent successfully.",
+      });
+      setInviteEmail("");
     }
   });
 
@@ -166,8 +175,6 @@ const CirclePage = ({ profileType }: CirclePageProps) => {
     
     try {
       await sendInviteMutation.mutateAsync(inviteEmail);
-      setInviteEmail("");
-      // Show success message
     } catch (error) {
       console.error('Failed to send invite:', error);
     }
@@ -176,7 +183,26 @@ const CirclePage = ({ profileType }: CirclePageProps) => {
   const copyInviteLink = () => {
     const inviteLink = `${window.location.origin}/invite/${inviteCode}`;
     navigator.clipboard.writeText(inviteLink);
-    // Show success toast
+    toast({
+      title: "Link copied!",
+      description: "Invite link has been copied to clipboard.",
+    });
+  };
+
+  const handleJoinRequest = () => {
+    if (!joinInviteLink.trim()) {
+      toast({
+        title: "Please enter an invite link",
+        description: "Paste your invitation link to continue.",
+        variant: "destructive"
+      });
+      return;
+    }
+    setView('join-waiting');
+  };
+
+  const skipForDemo = () => {
+    setView('members');
   };
 
   if (isLoading) {
@@ -190,114 +216,138 @@ const CirclePage = ({ profileType }: CirclePageProps) => {
     );
   }
 
-  // Show empty state when user has no circles
+  // Empty State - Initial options
   if ((!userCircles || userCircles.length === 0) && view === 'empty') {
     return (
-      <div className="min-h-screen bg-white p-4 space-y-6">
-        {/* Demo Banner */}
-        <div className="bg-blush-red border border-brand-red/20 rounded-lg p-4 mb-6">
-          <div className="flex items-center space-x-2">
-            <Trophy className="w-5 h-5 text-brand-red" />
-            <span className="font-semibold text-brand-red text-sm">DEMO CIRCLE</span>
+      <div className="min-h-screen bg-white p-4">
+        <div className="max-w-md mx-auto pt-12">
+          <div className="text-center mb-12">
+            <div className="bg-brand-red rounded-full p-6 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+              <Trophy className="w-12 h-12 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-brand-charcoal mb-4">Welcome to Circle</h1>
           </div>
-          <p className="text-xs text-brand-charcoal/70 mt-1">This is a preview of how your Circle will look with members</p>
-        </div>
 
-        <div className="text-center py-12">
-          <div className="bg-brand-red rounded-full p-6 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
-            <Trophy className="w-12 h-12 text-white" />
-          </div>
-          <h2 className="text-2xl font-bold text-brand-charcoal mb-3">You haven't joined a Circle yet</h2>
-          <p className="text-brand-charcoal/70 mb-8 max-w-md mx-auto">
-            Create a Circle to connect with other warriors and caregivers. Share progress, celebrate streaks, and support each other.
-          </p>
-          <Button 
-            onClick={() => setView('create')}
-            className="bg-brand-red hover:bg-brand-red/90 text-white px-8 py-6 text-lg font-semibold rounded-xl"
-          >
-            Create a Circle
-          </Button>
-        </div>
-
-        {/* Demo Preview */}
-        <div className="mt-12">
-          <h3 className="text-lg font-semibold text-brand-charcoal mb-4 text-center">Preview: How your Circle will look</h3>
-          
-          {/* Demo Group Stats */}
-          <Card className="bg-white shadow-card mb-6">
-            <CardHeader>
-              <CardTitle className="text-lg text-brand-charcoal flex items-center">
-                <Users className="w-5 h-5 mr-2" />
-                Group Stats
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-red">4</div>
-                  <div className="text-sm text-brand-charcoal/70">Members</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-red">87%</div>
-                  <div className="text-sm text-brand-charcoal/70">Avg Adherence</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-red">1</div>
-                  <div className="text-sm text-brand-charcoal/70">Crisis Events</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-red">45</div>
-                  <div className="text-sm text-brand-charcoal/70">Healthy Days</div>
-                </div>
-              </div>
-              <div className="text-center pt-2 border-t border-brand-grey/30">
-                <p className="text-brand-charcoal font-medium">
-                  Together, you've completed <span className="text-brand-red font-bold">45 healthy days!</span> 🎉
+          <div className="space-y-6">
+            {/* Option 1 - Create a Circle */}
+            <Card className="bg-white shadow-card hover:shadow-lg transition-shadow">
+              <CardContent className="p-6 text-center">
+                <h2 className="text-xl font-bold text-brand-charcoal mb-3">Create a Circle</h2>
+                <p className="text-brand-charcoal/70 mb-6 leading-relaxed">
+                  You haven't joined a Circle yet. Create a Circle to connect with other warriors and caregivers. Share progress, celebrate streaks, and support each other.
                 </p>
-              </div>
-            </CardContent>
-          </Card>
+                <Button 
+                  onClick={() => setView('create')}
+                  className="w-full bg-brand-red hover:bg-brand-red/90 text-white py-3 text-lg font-semibold rounded-xl"
+                >
+                  Create a Circle
+                </Button>
+              </CardContent>
+            </Card>
 
-          {/* Demo Members */}
+            {/* Option 2 - Join a Circle */}
+            <Card className="bg-white shadow-card hover:shadow-lg transition-shadow">
+              <CardContent className="p-6 text-center">
+                <div className="flex items-center justify-center mb-3">
+                  <Sparkles className="w-6 h-6 text-brand-red mr-2" />
+                  <h2 className="text-xl font-bold text-brand-charcoal">Join a Circle</h2>
+                </div>
+                <p className="text-brand-charcoal/70 mb-6 leading-relaxed">
+                  Be part of a community that celebrates your wins and supports you through challenges.
+                </p>
+                <Button 
+                  onClick={() => setView('join')}
+                  variant="outline"
+                  className="w-full border-2 border-brand-red text-brand-red hover:bg-brand-red hover:text-white py-3 text-lg font-semibold rounded-xl transition-all"
+                >
+                  Request to Join Circle
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Join Circle Flow - Step 1: Paste Invite Link
+  if (view === 'join') {
+    return (
+      <div className="min-h-screen bg-white p-4">
+        <div className="max-w-md mx-auto">
+          <div className="flex items-center mb-6">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setView('empty')}
+              className="mr-4"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-xl font-bold text-brand-charcoal">Join a Circle</h1>
+          </div>
+
           <Card className="bg-white shadow-card">
-            <CardHeader>
-              <CardTitle className="text-lg text-brand-charcoal flex items-center">
-                <Heart className="w-5 h-5 mr-2" />
-                Circle Members
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="p-6 text-center">
+              <div className="bg-blush-red rounded-full p-4 w-16 h-16 mx-auto mb-6 flex items-center justify-center">
+                <Mail className="w-8 h-8 text-brand-red" />
+              </div>
+              
+              <h2 className="text-xl font-bold text-brand-charcoal mb-4">Paste Your Invitation Link</h2>
+              
               <div className="space-y-4">
-                {mockMembers.slice(0, 2).map((member) => (
-                  <div key={member.id} className="flex items-center justify-between p-4 rounded-xl bg-brand-grey/10">
-                    <div className="flex items-center space-x-4">
-                      <Avatar className="w-12 h-12">
-                        <AvatarImage src={member.avatar || undefined} alt={member.name} />
-                        <AvatarFallback className="bg-brand-red text-white">
-                          {member.name.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <h3 className="font-semibold text-brand-charcoal">{member.name}</h3>
-                          {member.inCrisis && (
-                            <Badge className="bg-brand-red text-white text-xs">In Crisis Today</Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-brand-charcoal/70">
-                          {member.streak > 0 ? `${member.streak}-Day Streak` : "No logs today yet"}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-brand-red">{member.streak}</div>
-                      <div className="text-xs text-brand-charcoal/70">days</div>
-                    </div>
-                  </div>
-                ))}
+                <Input
+                  placeholder="Paste your invitation link here"
+                  value={joinInviteLink}
+                  onChange={(e) => setJoinInviteLink(e.target.value)}
+                  className="text-center"
+                />
+                
+                <Button
+                  onClick={handleJoinRequest}
+                  className="w-full bg-brand-red hover:bg-brand-red/90 text-white py-3 text-lg font-semibold rounded-xl"
+                >
+                  Submit Request
+                </Button>
+                
+                <Button
+                  onClick={skipForDemo}
+                  variant="ghost"
+                  className="w-full text-brand-charcoal/70 hover:text-brand-charcoal text-sm"
+                >
+                  Skip for Demo
+                </Button>
               </div>
             </CardContent>
           </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Join Circle Flow - Step 2: Waiting for Approval
+  if (view === 'join-waiting') {
+    return (
+      <div className="min-h-screen bg-white p-4">
+        <div className="max-w-md mx-auto pt-24">
+          <div className="text-center">
+            <div className="bg-brand-warning/20 rounded-full p-6 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+              <Clock className="w-12 h-12 text-brand-warning" />
+            </div>
+            
+            <h1 className="text-2xl font-bold text-brand-charcoal mb-4">Request Sent! ✨</h1>
+            <p className="text-brand-charcoal/70 mb-8 leading-relaxed">
+              Your request has been sent. The Circle creator will review and approve your membership soon.
+            </p>
+            
+            <Button
+              onClick={skipForDemo}
+              variant="outline"
+              className="border-2 border-brand-red text-brand-red hover:bg-brand-red hover:text-white py-3 px-8 text-lg font-semibold rounded-xl"
+            >
+              Skip for Demo
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -383,13 +433,25 @@ const CirclePage = ({ profileType }: CirclePageProps) => {
                 </div>
               )}
 
-              <Button
-                onClick={handleCreateCircle}
-                disabled={!circleName || createCircleMutation.isPending}
-                className="w-full mt-6 bg-brand-red hover:bg-brand-red/90 text-white py-3 text-lg font-semibold rounded-xl"
-              >
-                {createStep < 3 ? 'Next' : createCircleMutation.isPending ? 'Creating...' : 'Create Circle'}
-              </Button>
+              <div className="space-y-3 mt-6">
+                <Button
+                  onClick={handleCreateCircle}
+                  disabled={!circleName || createCircleMutation.isPending}
+                  className="w-full bg-brand-red hover:bg-brand-red/90 text-white py-3 text-lg font-semibold rounded-xl"
+                >
+                  {createStep < 3 ? 'Next' : createCircleMutation.isPending ? 'Creating...' : 'Create Circle'}
+                </Button>
+                
+                {createStep === 3 && (
+                  <Button
+                    onClick={skipForDemo}
+                    variant="ghost"
+                    className="w-full text-brand-charcoal/70 hover:text-brand-charcoal text-sm"
+                  >
+                    Skip for Demo
+                  </Button>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -404,17 +466,17 @@ const CirclePage = ({ profileType }: CirclePageProps) => {
     return (
       <div className="min-h-screen bg-white p-4">
         <div className="max-w-md mx-auto">
-          <div className="text-center mb-8">
+          <div className="text-center mb-8 pt-12">
             <div className="bg-brand-success rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <CheckCircle className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-brand-charcoal mb-2">Your Circle is ready!</h1>
-            <p className="text-brand-charcoal/70">Invite members to get started 🎉</p>
+            <h1 className="text-2xl font-bold text-brand-charcoal mb-2">Your Circle has been created!</h1>
+            <p className="text-brand-charcoal/70">Share the link below to invite members.</p>
           </div>
 
           <Card className="bg-white shadow-card mb-6">
             <CardHeader>
-              <CardTitle className="text-lg text-brand-charcoal">Invite Link</CardTitle>
+              <CardTitle className="text-lg text-brand-charcoal">Invitation Link</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2">
@@ -429,7 +491,7 @@ const CirclePage = ({ profileType }: CirclePageProps) => {
             </CardContent>
           </Card>
 
-          <Card className="bg-white shadow-card">
+          <Card className="bg-white shadow-card mb-6">
             <CardHeader>
               <CardTitle className="text-lg text-brand-charcoal">Send Email Invites</CardTitle>
             </CardHeader>
@@ -455,18 +517,28 @@ const CirclePage = ({ profileType }: CirclePageProps) => {
             </CardContent>
           </Card>
 
-          <Button
-            onClick={() => setView('members')}
-            className="w-full mt-8 bg-brand-red hover:bg-brand-red/90 text-white py-3 text-lg font-semibold rounded-xl"
-          >
-            Continue to Circle
-          </Button>
+          <div className="space-y-3">
+            <Button
+              onClick={() => setView('members')}
+              className="w-full bg-brand-red hover:bg-brand-red/90 text-white py-3 text-lg font-semibold rounded-xl"
+            >
+              Continue to Circle
+            </Button>
+            
+            <Button
+              onClick={skipForDemo}
+              variant="ghost"
+              className="w-full text-brand-charcoal/70 hover:text-brand-charcoal text-sm"
+            >
+              Skip for Demo
+            </Button>
+          </div>
         </div>
       </div>
     );
   }
 
-  // Default to existing members view (your original Circle page code)
+  // Real Circle Display (Post-Approval or Demo)
   const sortedMembers = [...mockMembers].sort((a, b) => b.streak - a.streak);
   const topStreakHolder = sortedMembers[0];
   const totalMembers = mockMembers.length;
@@ -615,7 +687,7 @@ const CirclePage = ({ profileType }: CirclePageProps) => {
         </CardContent>
       </Card>
 
-      {/* Member Display Section */}
+      {/* All Members Grid */}
       <Card className="bg-white shadow-card">
         <CardHeader>
           <CardTitle className="text-lg text-brand-charcoal flex items-center">
