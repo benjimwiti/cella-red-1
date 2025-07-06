@@ -5,7 +5,7 @@ import VerificationStep from "./VerificationStep";
 import ProfileSetupStep from "./ProfileSetupStep";
 import AuthLayout from "./AuthLayout";
 import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
+import { Heart, ArrowLeft } from "lucide-react";
 
 interface AuthFlowProps {
   onComplete: (profile: any) => void;
@@ -66,6 +66,14 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
     }
   };
 
+  const handleBackFromSuccess = () => {
+    if (isLogin) {
+      setStep("verification");
+    } else {
+      setStep("profile");
+    }
+  };
+
   if (step === "success") {
     return (
       <div className="min-h-screen cella-gradient flex flex-col">
@@ -82,6 +90,14 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
             </div>
 
             <div className="bg-white rounded-2xl shadow-card p-8 space-y-8">
+              <button
+                onClick={handleBackFromSuccess}
+                className="flex items-center text-brand-charcoal/70 hover:text-brand-charcoal transition-colors mb-4"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </button>
+
               <div className="text-center">
                 <div className="w-16 h-16 bg-brand-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <div className="w-8 h-8 bg-brand-success rounded-full flex items-center justify-center">

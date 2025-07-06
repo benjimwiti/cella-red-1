@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Bell, AlertTriangle, Heart, Droplet, Pill, Utensils, CloudSun } from "lucide-react";
+import { Bell, AlertTriangle, Heart, Droplet, Pill, Utensils, CloudSun, Trophy, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -27,36 +27,54 @@ const HomePage = ({ profileType }: HomePageProps) => {
       {/* Header */}
       <div className="flex items-center justify-between pt-2">
         <div className="flex items-center space-x-3">
-          <Avatar className="w-12 h-12 ring-2 ring-cella-rose/20">
+          <Avatar className="w-12 h-12 ring-2 ring-brand-red/20">
             <AvatarImage src={avatarImage} alt="User Avatar" />
-            <AvatarFallback className="bg-cella-rose text-white">
+            <AvatarFallback className="bg-brand-red text-white">
               <Heart className="w-6 h-6" />
             </AvatarFallback>
           </Avatar>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">{greeting}, {userName}!</h1>
-            <p className="text-sm text-cella-grey">How are you feeling today?</p>
+            <h1 className="text-xl font-bold text-brand-charcoal">{greeting}, {userName}!</h1>
+            <p className="text-sm text-brand-charcoal/70">How are you feeling today?</p>
           </div>
         </div>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="w-5 h-5" />
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-cella-crisis rounded-full"></div>
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-brand-warning rounded-full"></div>
         </Button>
       </div>
 
       {/* Crisis Risk Indicator */}
       <RiskIndicator level={riskLevel} />
 
+      {/* Circle Button */}
+      <Card className="bg-white shadow-card">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="bg-brand-red/10 rounded-full p-3">
+                <Trophy className="w-6 h-6 text-brand-red" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-brand-charcoal">Your Circle</h3>
+                <p className="text-sm text-brand-charcoal/70">See how everyone is doing 💪</p>
+              </div>
+            </div>
+            <ArrowRight className="w-5 h-5 text-brand-charcoal/40" />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Quick Action Cards */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-gray-900">Today's Health</h2>
+        <h2 className="text-lg font-semibold text-brand-charcoal">Today's Health</h2>
         <div className="grid grid-cols-2 gap-4">
           <QuickActionCard
             icon={Droplet}
             title="Hydration"
             value="3/8 cups"
             progress={37.5}
-            color="cella-hydration"
+            color="blue-500"
             bgColor="bg-blue-50"
           />
           <QuickActionCard
@@ -64,7 +82,7 @@ const HomePage = ({ profileType }: HomePageProps) => {
             title="Medications"
             value="2/3 taken"
             progress={66.7}
-            color="cella-medication"
+            color="brand-warning"
             bgColor="bg-yellow-50"
           />
           <QuickActionCard
@@ -72,7 +90,7 @@ const HomePage = ({ profileType }: HomePageProps) => {
             title="Meals"
             value="2 logged"
             progress={100}
-            color="cella-healthy"
+            color="brand-success"
             bgColor="bg-green-50"
           />
           <QuickActionCard
@@ -80,7 +98,7 @@ const HomePage = ({ profileType }: HomePageProps) => {
             title="Weather"
             value="72°F"
             subtitle="Partly cloudy"
-            color="cella-grey"
+            color="brand-charcoal"
             bgColor="bg-gray-50"
           />
         </div>

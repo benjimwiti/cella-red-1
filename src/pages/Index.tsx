@@ -8,6 +8,7 @@ import CalendarPage from '@/components/pages/CalendarPage';
 import AskCellaPage from '@/components/pages/AskCellaPage';
 import HealthLogsPage from '@/components/pages/HealthLogsPage';
 import ProfilePage from '@/components/pages/ProfilePage';
+import CirclePage from '@/components/pages/CirclePage';
 import CaregiverDashboard from '@/components/CaregiverDashboard';
 import AuthFlow from '@/components/auth/AuthFlow';
 
@@ -17,9 +18,11 @@ const Index = () => {
   const [profileType, setProfileType] = useState<'patient' | 'caregiver' | null>(null);
   const [activeTab, setActiveTab] = useState('home');
   const [showCaregiverDashboard, setShowCaregiverDashboard] = useState(false);
+  const [showAuth, setShowAuth] = useState(true);
 
   const handleAuthComplete = (profile: any) => {
     setUserProfile(profile);
+    setShowAuth(false);
   };
 
   const handleProfileSelect = (type: 'patient' | 'caregiver') => {
@@ -27,32 +30,37 @@ const Index = () => {
     setShowCaregiverDashboard(type === 'caregiver');
   };
 
+  const handleBackToAuth = () => {
+    setShowAuth(true);
+    setUserProfile(null);
+  };
+
   // Show loading while checking auth state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white via-cella-rose-light to-white flex items-center justify-center">
+      <div className="min-h-screen cella-gradient flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cella-rose mx-auto"></div>
-          <p className="mt-2 text-cella-grey">Loading...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-red mx-auto"></div>
+          <p className="mt-2 text-brand-charcoal/70">Loading...</p>
         </div>
       </div>
     );
   }
 
-  // Show auth flow if not authenticated
-  if (!user) {
+  // Show auth flow if not authenticated and showAuth is true
+  if (!user && showAuth) {
     return <AuthFlow onComplete={handleAuthComplete} />;
   }
 
   // Show profile selector if authenticated but no profile type selected
-  if (!profileType) {
-    return <ProfileSelector onProfileSelect={handleProfileSelect} />;
+  if (userProfile && !profileType) {
+    return <ProfileSelector onProfileSelect={handleProfileSelect} onBack={handleBackToAuth} />;
   }
 
   // Show caregiver dashboard initially for caregivers
   if (showCaregiverDashboard) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white via-cella-rose-light to-white flex flex-col">
+      <div className="min-h-screen cella-gradient flex flex-col">
         <div className="flex-1 pb-20">
           <CaregiverDashboard />
         </div>
@@ -72,6 +80,8 @@ const Index = () => {
         return <CalendarPage />;
       case 'ask-cella':
         return <AskCellaPage />;
+      case 'circle':
+        return <CirclePage profileType={profileType} />;
       case 'health-logs':
         return <HealthLogsPage />;
       case 'profile':
@@ -81,6 +91,7 @@ const Index = () => {
             setUserProfile(null);
             setProfileType(null);
             setShowCaregiverDashboard(false);
+            setShowAuth(true);
             return;
           }
           setProfileType(type);
@@ -94,7 +105,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-cella-rose-light to-white flex flex-col">
+    <div className="min-h-screen cella-gradient flex flex-col">
       <div className="flex-1 pb-20">
         {renderActiveTab()}
       </div>
