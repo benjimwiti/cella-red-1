@@ -112,28 +112,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (code === expectedCode) {
           sessionStorage.removeItem(`otp_${email}`);
           
-          // Sign in the user using Supabase
-          const { error } = await supabase.auth.signInWithOtp({
+          // Create a session by signing up the user (for demo purposes)
+          const { error } = await supabase.auth.signUp({
             email,
-            token: code,
-            type: 'email'
+            password: email,
+            options: {
+              emailRedirectTo: `${window.location.origin}/`
+            }
           });
           
-          // If Supabase OTP fails, create a session manually
-          if (error) {
-            // For demo purposes, we'll simulate successful auth
-            // In production, you'd want to handle this differently
-            const { error: signUpError } = await supabase.auth.signUp({
-              email,
-              password: email,
-              options: {
-                emailRedirectTo: `${window.location.origin}/`
-              }
-            });
-            return { error: signUpError };
-          }
-          
-          return { error: null };
+          return { error };
         } else {
           return { error: { message: 'Invalid verification code' } };
         }
