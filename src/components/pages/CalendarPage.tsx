@@ -15,53 +15,59 @@ const CalendarPage = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 space-y-6">
-      {/* Header */}
-      <div className="pt-2">
-        <h1 className="text-2xl font-bold text-gray-900">Health Calendar</h1>
-        <p className="text-cella-grey">Track your health journey</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-white to-slate-50">
+      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
+        {/* Header - Responsive */}
+        <div className="pt-2">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+            Health Calendar
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600">
+            Track your health journey
+          </p>
+        </div>
 
-      {/* Calendar */}
-      <div className="bg-white rounded-lg shadow-sm p-4">
-        <HealthCalendar onDateSelect={handleDateSelect} />
-      </div>
+        {/* Calendar - Responsive container */}
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+          <HealthCalendar onDateSelect={handleDateSelect} />
+        </div>
 
-      {/* Legend */}
-      <div className="bg-white rounded-lg shadow-sm p-4">
-        <h3 className="font-semibold text-gray-900 mb-3">Legend</h3>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-cella-crisis rounded-full"></div>
-            <span>Crisis</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-cella-hydration rounded-full"></div>
-            <span>Low Hydration</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-cella-healthy rounded-full"></div>
-            <span>Healthy Meal</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-cella-medication rounded-full"></div>
-            <span>Missed Med</span>
+        {/* Legend - Responsive grid */}
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+          <h3 className="font-semibold text-gray-900 mb-3 text-base sm:text-lg">Legend</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm sm:text-base">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-orange-500 rounded-full flex-shrink-0"></div>
+              <span>Crisis</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
+              <span>Low Hydration</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0"></div>
+              <span>Healthy Meal</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-yellow-500 rounded-full flex-shrink-0"></div>
+              <span>Missed Med</span>
+            </div>
           </div>
         </div>
+
+        {/* Floating Add Button - Responsive positioning */}
+        <Button className="fixed bottom-24 right-4 sm:right-6 lg:right-8 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-brand-red hover:bg-brand-red/90 text-white shadow-lg z-40">
+          <Plus className="w-5 h-5 sm:w-6 sm:h-6" />
+        </Button>
+
+        {/* Day Detail Modal */}
+        {showModal && selectedDate && (
+          <DayDetailModal 
+            date={selectedDate} 
+            onClose={() => setShowModal(false)} 
+          />
+        )}
       </div>
-
-      {/* Floating Add Button */}
-      <Button className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-cella-rose hover:bg-cella-rose-dark text-white shadow-lg">
-        <Plus className="w-6 h-6" />
-      </Button>
-
-      {/* Day Detail Modal */}
-      {showModal && selectedDate && (
-        <DayDetailModal 
-          date={selectedDate} 
-          onClose={() => setShowModal(false)} 
-        />
-      )}
     </div>
   );
 };

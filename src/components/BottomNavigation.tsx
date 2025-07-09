@@ -17,29 +17,31 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-brand-grey/30 px-4 py-2 safe-area-pb">
-      <div className="flex justify-around items-center max-w-md mx-auto">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          
-          return (
-            <button
-              key={tab.id}
-              onClick={() => onTabChange(tab.id)}
-              className={`flex flex-col items-center py-2 px-2 rounded-lg transition-all duration-200 ${
-                isActive 
-                  ? 'text-brand-red bg-brand-red/10' 
-                  : 'text-brand-charcoal/60 hover:text-brand-charcoal'
-              }`}
-            >
-              <Icon className={`w-5 h-5 mb-1 ${isActive ? 'scale-110' : ''} transition-transform`} />
-              <span className={`text-xs font-medium ${isActive ? 'font-semibold' : ''}`}>
-                {tab.label}
-              </span>
-            </button>
-          );
-        })}
+    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-brand-grey/30 safe-area-pb z-50">
+      <div className="w-full max-w-md mx-auto px-2 sm:px-4 py-2">
+        <div className="flex justify-around items-center">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            
+            return (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={`flex flex-col items-center py-2 px-1 sm:px-2 rounded-lg transition-all duration-200 min-w-0 flex-1 ${
+                  isActive 
+                    ? 'text-brand-red bg-brand-red/10' 
+                    : 'text-brand-charcoal/60 hover:text-brand-charcoal'
+                }`}
+              >
+                <Icon className={`w-5 h-5 mb-1 ${isActive ? 'scale-110' : ''} transition-transform flex-shrink-0`} />
+                <span className={`text-xs font-medium ${isActive ? 'font-semibold' : ''} truncate w-full text-center`}>
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
