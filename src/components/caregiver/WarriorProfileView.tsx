@@ -1,12 +1,21 @@
-
-import { useState } from "react";
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { Calendar, Droplet, Pill, Heart, FileText, Settings, Plus } from "lucide-react";
+import { 
+  ArrowLeft, 
+  Calendar, 
+  Activity, 
+  Droplet, 
+  Pill, 
+  AlertTriangle, 
+  Heart,
+  FileText,
+  Settings,
+  Bell
+} from "lucide-react";
 
 interface WarriorProfile {
   id: string;
@@ -21,278 +30,209 @@ interface WarriorProfile {
 
 interface WarriorProfileViewProps {
   warrior: WarriorProfile;
-  onUpdate: (warrior: WarriorProfile) => void;
+  onBack: () => void;
 }
 
-const WarriorProfileView = ({ warrior, onUpdate }: WarriorProfileViewProps) => {
-  const [activeTab, setActiveTab] = useState("overview");
+const WarriorProfileView = ({ warrior, onBack }: WarriorProfileViewProps) => {
+  const [activeTab, setActiveTab] = useState('overview');
 
-  // Mock data for the profile
-  const healthStats = {
-    hydrationStreak: 5,
-    hydrationGoal: 8,
-    hydrationCurrent: 6,
-    medicationAdherence: 95,
-    crisisFree: 12
-  };
-
-  const medications = [
-    { id: 1, name: "Hydroxyurea", dosage: "500mg", time: "8:00 AM", taken: true },
-    { id: 2, name: "Folic Acid", dosage: "5mg", time: "12:00 PM", taken: false },
-    { id: 3, name: "Pain Relief", dosage: "As needed", time: "PRN", taken: false }
-  ];
-
-  const upcomingAppointments = [
-    { id: 1, date: "2024-07-15", doctor: "Dr. Smith", type: "Routine Check-up" },
-    { id: 2, date: "2024-08-10", doctor: "Dr. Johnson", type: "Hematology Consultation" }
-  ];
-
-  const recentLogs = [
-    { date: "Today", type: "Hydration", value: "6/8 glasses", status: "warning" },
-    { date: "Today", type: "Medication", value: "2/3 taken", status: "warning" },
-    { date: "Yesterday", type: "Pain Level", value: "2/10", status: "good" },
-    { date: "Yesterday", type: "Hydration", value: "8/8 glasses", status: "good" }
-  ];
-
-  const toggleMedication = (medId: number) => {
-    // In a real app, this would update the database
-    console.log(`Toggling medication ${medId}`);
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'good': return 'text-green-600 bg-green-100';
+      case 'warning': return 'text-yellow-600 bg-yellow-100';
+      case 'crisis': return 'text-red-600 bg-red-100';
+      case 'attention': return 'text-orange-600 bg-orange-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="bg-brand-red/5 rounded-lg p-6">
+      <div className="bg-brand-red text-white p-4">
+        <div className="flex items-center space-x-3 mb-4">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onBack}
+            className="text-white hover:bg-white/20"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-xl font-bold">Managing: {warrior.name}</h1>
+            <p className="text-white/80">👩‍⚕️ Logged in as Caregiver</p>
+          </div>
+        </div>
+
+        {/* Warrior Info */}
         <div className="flex items-center space-x-4">
-          <Avatar className="w-20 h-20 ring-4 ring-brand-red/20">
+          <Avatar className="w-16 h-16 ring-4 ring-white/20">
             <AvatarImage src={warrior.avatar} alt={warrior.name} />
-            <AvatarFallback className="bg-brand-red text-white text-2xl">
+            <AvatarFallback className="bg-white/20 text-white text-xl">
               {warrior.name.charAt(0)}
             </AvatarFallback>
           </Avatar>
           <div>
-            <div className="flex items-center space-x-3 mb-2">
-              <h1 className="text-2xl font-bold text-gray-900">{warrior.name}</h1>
-              <Badge variant="secondary">Age {warrior.age}</Badge>
-            </div>
-            <p className="text-gray-600 mb-2">👩‍⚕️ Managing as Caregiver</p>
-            <div className="flex space-x-4 text-sm">
-              <span className="flex items-center text-green-600">
-                💪 {healthStats.crisisFree} days crisis-free
-              </span>
-              <span className="flex items-center text-blue-600">
-                💧 {healthStats.hydrationStreak} day hydration streak
-              </span>
+            <h2 className="text-2xl font-bold">{warrior.name}</h2>
+            <p className="text-white/80">Age {warrior.age}</p>
+            <div className="flex space-x-2 mt-2">
+              <Badge className={`${getStatusColor(warrior.status)} text-xs`}>
+                {warrior.status}
+              </Badge>
+              <Badge className={`${getStatusColor(warrior.hydrationStatus)} text-xs`}>
+                Hydration: {warrior.hydrationStatus}
+              </Badge>
+              <Badge className={`${getStatusColor(warrior.medicationStatus)} text-xs`}>
+                Meds: {warrior.medicationStatus}
+              </Badge>
             </div>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="calendar">Calendar</TabsTrigger>
-          <TabsTrigger value="logs">Logs</TabsTrigger>
-          <TabsTrigger value="medications">Medications</TabsTrigger>
-          <TabsTrigger value="appointments">Appointments</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="w-full justify-start bg-gray-50 p-1">
+          <TabsTrigger value="overview" className="flex items-center space-x-2">
+            <Activity className="w-4 h-4" />
+            <span>Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="calendar" className="flex items-center space-x-2">
+            <Calendar className="w-4 h-4" />
+            <span>Calendar</span>
+          </TabsTrigger>
+          <TabsTrigger value="logs" className="flex items-center space-x-2">
+            <FileText className="w-4 h-4" />
+            <span>Logs</span>
+          </TabsTrigger>
+          <TabsTrigger value="medications" className="flex items-center space-x-2">
+            <Pill className="w-4 h-4" />
+            <span>Medications</span>
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex items-center space-x-2">
+            <Settings className="w-4 h-4" />
+            <span>Settings</span>
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3">
-                  <Droplet className="w-8 h-8 text-blue-500" />
-                  <div>
-                    <p className="text-sm text-gray-600">Today's Hydration</p>
-                    <p className="text-lg font-semibold">{healthStats.hydrationCurrent}/{healthStats.hydrationGoal} glasses</p>
-                    <Progress value={(healthStats.hydrationCurrent / healthStats.hydrationGoal) * 100} className="mt-1" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3">
-                  <Pill className="w-8 h-8 text-yellow-500" />
-                  <div>
-                    <p className="text-sm text-gray-600">Medication Adherence</p>
-                    <p className="text-lg font-semibold">{healthStats.medicationAdherence}%</p>
-                    <Progress value={healthStats.medicationAdherence} className="mt-1" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3">
-                  <Heart className="w-8 h-8 text-green-500" />
-                  <div>
-                    <p className="text-sm text-gray-600">Crisis-Free</p>
-                    <p className="text-lg font-semibold">{healthStats.crisisFree} days</p>
-                    <p className="text-xs text-green-600">Great progress!</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {recentLogs.map((log, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium">{log.type}</p>
-                      <p className="text-sm text-gray-600">{log.date}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">{log.value}</p>
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        log.status === 'good' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {log.status === 'good' ? 'On track' : 'Needs attention'}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="medications" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Medications</h3>
-            <Button size="sm" className="bg-brand-red hover:bg-brand-red/90">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Medication
-            </Button>
-          </div>
-          
-          <div className="space-y-3">
-            {medications.map((med) => (
-              <Card key={med.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium">{med.name}</h4>
-                      <p className="text-sm text-gray-600">{med.dosage} - {med.time}</p>
-                    </div>
-                    <Button
-                      variant={med.taken ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => toggleMedication(med.id)}
-                      className={med.taken ? "bg-green-600 hover:bg-green-700" : ""}
-                    >
-                      {med.taken ? "✓ Taken" : "Mark Taken"}
-                    </Button>
-                  </div>
+        <div className="p-4">
+          <TabsContent value="overview" className="space-y-4">
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <Droplet className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                  <p className="text-2xl font-bold">6/8</p>
+                  <p className="text-sm text-gray-600">Glasses Today</p>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="appointments" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Upcoming Appointments</h3>
-            <Button size="sm" className="bg-brand-red hover:bg-brand-red/90">
-              <Plus className="w-4 h-4 mr-2" />
-              Schedule Appointment
-            </Button>
-          </div>
-          
-          <div className="space-y-3">
-            {upcomingAppointments.map((appointment) => (
-              <Card key={appointment.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium">{appointment.type}</h4>
-                      <p className="text-sm text-gray-600">{appointment.doctor}</p>
-                      <p className="text-sm text-gray-600">{appointment.date}</p>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Edit
-                    </Button>
-                  </div>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <Pill className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                  <p className="text-2xl font-bold">100%</p>
+                  <p className="text-sm text-gray-600">Med Adherence</p>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        </TabsContent>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <Heart className="w-8 h-8 text-red-500 mx-auto mb-2" />
+                  <p className="text-2xl font-bold">5</p>
+                  <p className="text-sm text-gray-600">Days Since Crisis</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <Activity className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                  <p className="text-2xl font-bold">12</p>
+                  <p className="text-sm text-gray-600">Day Streak</p>
+                </CardContent>
+              </Card>
+            </div>
 
-        <TabsContent value="logs" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Health Logs</h3>
-            <Button size="sm" className="bg-brand-red hover:bg-brand-red/90">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Log Entry
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Button variant="outline" className="h-20 flex-col space-y-2">
-              <Droplet className="w-6 h-6 text-blue-500" />
-              <span>Log Hydration</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2">
-              <Pill className="w-6 h-6 text-yellow-500" />
-              <span>Log Medication</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2">
-              <Heart className="w-6 h-6 text-red-500" />
-              <span>Log Pain Level</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2">
-              <FileText className="w-6 h-6 text-green-500" />
-              <span>Log Meal</span>
-            </Button>
-          </div>
-        </TabsContent>
+            {/* Recent Activity */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                  <Pill className="w-5 h-5 text-green-600" />
+                  <div>
+                    <p className="font-medium">Hydroxyurea taken</p>
+                    <p className="text-sm text-gray-600">Today at 8:00 AM</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                  <Droplet className="w-5 h-5 text-blue-600" />
+                  <div>
+                    <p className="font-medium">Hydration logged</p>
+                    <p className="text-sm text-gray-600">6 glasses - 2 hours ago</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg">
+                  <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                  <div>
+                    <p className="font-medium">Mild pain reported</p>
+                    <p className="text-sm text-gray-600">Yesterday at 3:30 PM</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="calendar">
-          <Card>
-            <CardHeader>
-              <CardTitle>Health Calendar</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">Calendar view with color-coded health events will be displayed here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <TabsContent value="calendar">
+            <Card>
+              <CardHeader>
+                <CardTitle>Health Calendar</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-center text-gray-600 py-8">
+                  Calendar view with color-coded health events coming soon
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="settings">
-          <Card>
-            <CardHeader>
-              <CardTitle>Warrior Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Button variant="outline" className="w-full justify-start">
-                <Settings className="w-4 h-4 mr-2" />
-                Edit Profile Information
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Bell className="w-4 h-4 mr-2" />
-                Notification Preferences
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <FileText className="w-4 h-4 mr-2" />
-                Export Health Data
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <TabsContent value="logs">
+            <Card>
+              <CardHeader>
+                <CardTitle>Health Logs</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-center text-gray-600 py-8">
+                  Detailed health logs and entries coming soon
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="medications">
+            <Card>
+              <CardHeader>
+                <CardTitle>Medications</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-center text-gray-600 py-8">
+                  Medication tracking and management coming soon
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader>
+                <CardTitle>Warrior Settings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-center text-gray-600 py-8">
+                  Individual warrior settings coming soon
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </div>
       </Tabs>
     </div>
   );
