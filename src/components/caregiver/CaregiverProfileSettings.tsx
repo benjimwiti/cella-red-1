@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 import { 
   ArrowLeft, 
   User, 
@@ -21,31 +22,27 @@ import {
   Globe,
   Trash2
 } from "lucide-react";
-import AppointmentsManager from './AppointmentsManager';
-import EmergencySetup from './EmergencySetup';
-import ReportsExporter from './ReportsExporter';
-import NotificationSettings from './NotificationSettings';
 
-interface WarriorProfile {
+interface ChildProfile {
   id: string;
   name: string;
   age: number;
-  avatar: string;
-  lastCrisis: string;
+  avatar?: string;
+  genotype?: string;
+  lastActivity: string;
   status: 'good' | 'attention' | 'crisis';
-  hydrationStatus: 'good' | 'warning';
-  medicationStatus: 'good' | 'warning' | 'missed';
 }
 
 interface CaregiverProfileSettingsProps {
   onBack: () => void;
-  warriors: WarriorProfile[];
+  children: ChildProfile[];
   onProfileTypeChange: (type: 'patient' | 'caregiver') => void;
 }
 
-const CaregiverProfileSettings = ({ onBack, warriors, onProfileTypeChange }: CaregiverProfileSettingsProps) => {
+const CaregiverProfileSettings = ({ onBack, children, onProfileTypeChange }: CaregiverProfileSettingsProps) => {
   const [currentView, setCurrentView] = useState('main');
   const [showSwitchModal, setShowSwitchModal] = useState(false);
+  const { toast } = useToast();
   const [appSettings, setAppSettings] = useState({
     theme: 'auto',
     language: 'en',
@@ -69,20 +66,79 @@ const CaregiverProfileSettings = ({ onBack, warriors, onProfileTypeChange }: Car
     }
   };
 
+  const handleFeatureClick = (feature: string) => {
+    toast({
+      title: `${feature} Feature`,
+      description: `${feature} functionality will be implemented in a future update.`
+    });
+  };
+
   if (currentView === 'appointments') {
-    return <AppointmentsManager warriors={warriors} />;
+    return (
+      <div className="min-h-screen cella-gradient p-6">
+        <Button onClick={() => setCurrentView('main')} variant="ghost" className="mb-4">
+          ← Back to Settings
+        </Button>
+        <Card className="glass-effect">
+          <CardContent className="p-6 text-center">
+            <Calendar className="w-12 h-12 text-brand-red mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Appointments Manager</h3>
+            <p className="text-brand-charcoal/60">Manage appointments for your children - coming soon!</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (currentView === 'emergency') {
-    return <EmergencySetup warriors={warriors} />;
+    return (
+      <div className="min-h-screen cella-gradient p-6">
+        <Button onClick={() => setCurrentView('main')} variant="ghost" className="mb-4">
+          ← Back to Settings
+        </Button>
+        <Card className="glass-effect">
+          <CardContent className="p-6 text-center">
+            <Shield className="w-12 h-12 text-brand-red mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Emergency Setup</h3>
+            <p className="text-brand-charcoal/60">Configure emergency contacts - coming soon!</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (currentView === 'reports') {
-    return <ReportsExporter warriors={warriors} />;
+    return (
+      <div className="min-h-screen cella-gradient p-6">
+        <Button onClick={() => setCurrentView('main')} variant="ghost" className="mb-4">
+          ← Back to Settings
+        </Button>
+        <Card className="glass-effect">
+          <CardContent className="p-6 text-center">
+            <FileText className="w-12 h-12 text-brand-red mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Export Health Reports</h3>
+            <p className="text-brand-charcoal/60">Download health data reports - coming soon!</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (currentView === 'notifications') {
-    return <NotificationSettings warriors={warriors} />;
+    return (
+      <div className="min-h-screen cella-gradient p-6">
+        <Button onClick={() => setCurrentView('main')} variant="ghost" className="mb-4">
+          ← Back to Settings
+        </Button>
+        <Card className="glass-effect">
+          <CardContent className="p-6 text-center">
+            <Bell className="w-12 h-12 text-brand-red mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Notifications & Reminders</h3>
+            <p className="text-brand-charcoal/60">Manage notification preferences - coming soon!</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (currentView === 'app-settings') {
@@ -210,7 +266,7 @@ const CaregiverProfileSettings = ({ onBack, warriors, onProfileTypeChange }: Car
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">My Settings</h1>
-          <p className="text-gray-600">Manage your account, reminders, reports, and warrior tools all in one place.</p>
+          <p className="text-gray-600">Manage your account, reminders, reports, and child tools all in one place.</p>
         </div>
       </div>
 
@@ -251,7 +307,7 @@ const CaregiverProfileSettings = ({ onBack, warriors, onProfileTypeChange }: Car
         </CardHeader>
         <CardContent>
           <p className="text-gray-600 mb-4">
-            View and manage doctor visits for all your warriors.
+            View and manage doctor visits for all your children.
           </p>
           <Button className="w-full bg-brand-red hover:bg-brand-red/90">
             Manage Appointments
@@ -287,7 +343,7 @@ const CaregiverProfileSettings = ({ onBack, warriors, onProfileTypeChange }: Car
         </CardHeader>
         <CardContent>
           <p className="text-gray-600 mb-4">
-            Download hydration, medication, and crisis history reports for any warrior.
+            Download hydration, medication, and crisis history reports for any child.
           </p>
           <Button className="w-full bg-brand-red hover:bg-brand-red/90">
             Export Data
@@ -305,7 +361,7 @@ const CaregiverProfileSettings = ({ onBack, warriors, onProfileTypeChange }: Car
         </CardHeader>
         <CardContent>
           <p className="text-gray-600 mb-4">
-            Manage how and when you get alerts for each warrior.
+            Manage how and when you get alerts for each child.
           </p>
           <Button className="w-full bg-brand-red hover:bg-brand-red/90">
             Manage Reminders
@@ -339,7 +395,7 @@ const CaregiverProfileSettings = ({ onBack, warriors, onProfileTypeChange }: Car
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-gray-600">
-              Are you sure you want to switch your account type? You'll need to set up your own warrior profile.
+              Are you sure you want to switch your account type? You'll need to set up your own child profile.
             </p>
             <div className="flex space-x-2">
               <Button 

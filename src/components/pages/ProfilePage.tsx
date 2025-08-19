@@ -16,37 +16,16 @@ const ProfilePage = ({ profileType, onProfileChange }: ProfilePageProps) => {
   
   const avatarImage = "/lovable-uploads/c59e64c1-b31d-4b6c-9512-be81ef112725.png";
   
-  // Mock warriors data for caregiver settings
-  const mockWarriors = [
-    {
-      id: '1',
-      name: 'Joy',
-      age: 12,
-      avatar: '/lovable-uploads/c59e64c1-b31d-4b6c-9512-be81ef112725.png',
-      lastCrisis: '3 days ago',
-      status: 'good' as const,
-      hydrationStatus: 'good' as const,
-      medicationStatus: 'warning' as const
-    },
-    {
-      id: '2',
-      name: 'Marcus',
-      age: 8,
-      avatar: '/lovable-uploads/afdd89fb-3254-4ffe-9672-724d48c77f44.png',
-      lastCrisis: '1 week ago',
-      status: 'attention' as const,
-      hydrationStatus: 'warning' as const,
-      medicationStatus: 'good' as const
-    }
-  ];
+  // Remove old mock data since we no longer need it
+  const mockChildren = [];
   
   if (showCaregiverSettings && profileType === 'caregiver') {
     return (
-      <CaregiverProfileSettings 
-        onBack={() => setShowCaregiverSettings(false)}
-        warriors={mockWarriors}
-        onProfileTypeChange={onProfileChange}
-      />
+        <CaregiverProfileSettings 
+          onBack={() => setShowCaregiverSettings(false)}
+          children={[]} // Empty for now - will be populated when connected to real child data
+          onProfileTypeChange={onProfileChange}
+        />
     );
   }
   
@@ -54,25 +33,25 @@ const ProfilePage = ({ profileType, onProfileChange }: ProfilePageProps) => {
     { 
       icon: Calendar, 
       title: "Appointments", 
-      subtitle: profileType === 'caregiver' ? "Manage doctor visits for all warriors" : "Manage doctor visits", 
+      subtitle: profileType === 'caregiver' ? "Manage doctor visits for all children" : "Manage doctor visits", 
       action: profileType === 'caregiver' ? () => setShowCaregiverSettings(true) : () => {} 
     },
     { 
       icon: Users, 
       title: "Emergency Contacts", 
-      subtitle: profileType === 'caregiver' ? "Setup emergency contacts for each warrior" : "Setup emergency contacts", 
+      subtitle: profileType === 'caregiver' ? "Setup emergency contacts for each child" : "Setup emergency contacts", 
       action: profileType === 'caregiver' ? () => setShowCaregiverSettings(true) : () => {} 
     },
     { 
       icon: Download, 
       title: "Export Data", 
-      subtitle: profileType === 'caregiver' ? "Download health reports for any warrior" : "Download health reports", 
+      subtitle: profileType === 'caregiver' ? "Download health reports for any child" : "Download health reports", 
       action: profileType === 'caregiver' ? () => setShowCaregiverSettings(true) : () => {} 
     },
     { 
       icon: Bell, 
       title: "Notifications", 
-      subtitle: profileType === 'caregiver' ? "Manage reminders for each warrior" : "Manage reminders", 
+      subtitle: profileType === 'caregiver' ? "Manage reminders for each child" : "Manage reminders", 
       action: profileType === 'caregiver' ? () => setShowCaregiverSettings(true) : () => {} 
     },
     { 
