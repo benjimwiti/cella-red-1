@@ -31,7 +31,11 @@ interface ChildData {
   avatar?: string;
 }
 
-const CaregiverDashboard = () => {
+interface CaregiverDashboardProps {
+  onNavigateToTabs?: () => void;
+}
+
+const CaregiverDashboard = ({ onNavigateToTabs }: CaregiverDashboardProps = {}) => {
   const [view, setView] = useState<'welcome' | 'registration' | 'profiles' | 'child-dashboard'>('welcome');
   const [children, setChildren] = useState<ChildProfile[]>([
     {
@@ -115,8 +119,9 @@ const CaregiverDashboard = () => {
     case 'welcome':
       return (
         <CaregiverWelcome
+          onNavigateToTabs={onNavigateToTabs}
           onRegisterChild={() => setView('registration')}
-          onLoginExisting={handleWelcomeActions}
+          onViewProfiles={handleWelcomeActions}
         />
       );
     
@@ -148,8 +153,9 @@ const CaregiverDashboard = () => {
     default:
       return (
         <CaregiverWelcome
+          onNavigateToTabs={onNavigateToTabs}
           onRegisterChild={() => setView('registration')}
-          onLoginExisting={handleWelcomeActions}
+          onViewProfiles={handleWelcomeActions}
         />
       );
   }

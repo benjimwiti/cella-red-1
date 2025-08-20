@@ -4,13 +4,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Send, MessageCircle, AlertTriangle, Heart } from 'lucide-react';
+import { Send, MessageCircle, AlertTriangle, Heart, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { AIService } from '@/services/aiService';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 
-const AskCellaPage = () => {
+const AskCellaPage = ({ onBack }: { onBack?: () => void }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [question, setQuestion] = useState('');
@@ -59,6 +59,20 @@ const AskCellaPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-cella-rose-light to-white">
       <div className="p-6 space-y-6">
+        {/* Back Button */}
+        {onBack && (
+          <div className="flex items-center mb-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onBack}
+              className="mr-4"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center mb-6">
           <div className="flex items-center justify-center mb-4">

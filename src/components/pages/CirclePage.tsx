@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface CirclePageProps {
   profileType: 'patient' | 'caregiver';
+  onBack?: () => void;
 }
 
 type CircleView = 'empty' | 'create' | 'invite' | 'join' | 'join-waiting' | 'members' | 'approval';
@@ -64,7 +65,7 @@ const reactions = [
   { emoji: "🙌", label: "You rock!" }
 ];
 
-const CirclePage = ({ profileType }: CirclePageProps) => {
+const CirclePage = ({ profileType, onBack }: CirclePageProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -221,6 +222,20 @@ const CirclePage = ({ profileType }: CirclePageProps) => {
     return (
       <div className="min-h-screen bg-white p-4">
         <div className="max-w-md mx-auto pt-12">
+          {/* Back Button */}
+          {onBack && (
+            <div className="flex items-center mb-6">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={onBack}
+                className="mr-4"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </div>
+          )}
+
           <div className="text-center mb-12">
             <div className="bg-brand-red rounded-full p-6 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
               <Trophy className="w-12 h-12 text-white" />

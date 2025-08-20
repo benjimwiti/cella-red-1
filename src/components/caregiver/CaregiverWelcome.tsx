@@ -1,13 +1,14 @@
-import { Plus, LogIn } from "lucide-react";
+import { Plus, LogIn, MessageCircle, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface CaregiverWelcomeProps {
   onRegisterChild: () => void;
-  onLoginExisting: () => void;
+  onViewProfiles: () => void;
+  onNavigateToTabs?: () => void;
 }
 
-const CaregiverWelcome = ({ onRegisterChild, onLoginExisting }: CaregiverWelcomeProps) => {
+const CaregiverWelcome = ({ onRegisterChild, onViewProfiles, onNavigateToTabs }: CaregiverWelcomeProps) => {
   return (
     <div className="min-h-screen cella-gradient">
       <div className="w-full max-w-md mx-auto px-4 py-8 space-y-8">
@@ -53,7 +54,7 @@ const CaregiverWelcome = ({ onRegisterChild, onLoginExisting }: CaregiverWelcome
 
           <Card 
             className="glass-effect border-brand-charcoal/20 cursor-pointer hover:border-brand-charcoal/40 transition-all duration-200"
-            onClick={onLoginExisting}
+            onClick={onViewProfiles}
           >
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
@@ -62,7 +63,7 @@ const CaregiverWelcome = ({ onRegisterChild, onLoginExisting }: CaregiverWelcome
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-brand-charcoal text-lg mb-1">
-                    Log into Existing Profile
+                    View Child Profiles
                   </h3>
                   <p className="text-brand-charcoal/60 text-sm">
                     Access your child's existing data
@@ -71,6 +72,32 @@ const CaregiverWelcome = ({ onRegisterChild, onLoginExisting }: CaregiverWelcome
               </div>
             </CardContent>
           </Card>
+
+          {/* Community Features */}
+          {onNavigateToTabs && (
+            <>
+              <Card 
+                className="glass-effect border-purple-200 cursor-pointer hover:border-purple-400 transition-all duration-200"
+                onClick={() => onNavigateToTabs()}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Trophy className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-brand-charcoal text-lg mb-1">
+                        Circle & Ask Cella
+                      </h3>
+                      <p className="text-brand-charcoal/60 text-sm">
+                        Connect with community and get AI support
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </div>
 
         {/* Footer Note */}

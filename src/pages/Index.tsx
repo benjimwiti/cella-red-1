@@ -11,6 +11,7 @@ import HealthLogsPage from '@/components/pages/HealthLogsPage';
 import ProfilePage from '@/components/pages/ProfilePage';
 import CirclePage from '@/components/pages/CirclePage';
 import CaregiverDashboard from '@/components/CaregiverDashboard';
+import CaregiverBottomNavigation from '@/components/CaregiverBottomNavigation';
 import AuthFlow from '@/components/auth/AuthFlow';
 import Footer from '@/components/Footer';
 
@@ -20,7 +21,9 @@ const Index = () => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [profileType, setProfileType] = useState<'patient' | 'caregiver' | null>(null);
   const [activeTab, setActiveTab] = useState('home');
+  const [activeCaregiversTab, setActiveCaregiverTab] = useState('circle');
   const [showCaregiverDashboard, setShowCaregiverDashboard] = useState(false);
+  const [showCaregiverTabs, setShowCaregiverTabs] = useState(false);
   const [showAuth, setShowAuth] = useState(true);
 
   // Handle tab parameter for direct navigation
@@ -39,11 +42,32 @@ const Index = () => {
   const handleProfileSelect = (type: 'patient' | 'caregiver') => {
     setProfileType(type);
     setShowCaregiverDashboard(type === 'caregiver');
+    setShowCaregiverTabs(false);
   };
 
   const handleBackToAuth = () => {
     setShowAuth(true);
     setUserProfile(null);
+    setShowCaregiverDashboard(false);
+    setShowCaregiverTabs(false);
+  };
+
+  const handleCaregiverBack = () => {
+    if (showCaregiverTabs) {
+      setShowCaregiverTabs(false);
+      setShowCaregiverDashboard(true);
+    } else {
+      setShowCaregiverDashboard(false);
+      setProfileType(null);
+    }
+  };
+
+  const handleCaregiverSignOut = () => {
+    setUserProfile(null);
+    setProfileType(null);
+    setShowCaregiverDashboard(false);
+    setShowCaregiverTabs(false);
+    setShowAuth(true);
   };
 
   // Show loading while checking auth state
@@ -73,8 +97,37 @@ const Index = () => {
     return (
       <div className="min-h-screen cella-gradient flex flex-col">
         <div className="flex-1">
-          <CaregiverDashboard />
+          <CaregiverDashboard onNavigateToTabs={() => setShowCaregiverTabs(true)} />
         </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Show caregiver tabs view (Circle and Ask Cella)
+  if (showCaregiverTabs && profileType === 'caregiver') {
+    const renderCaregiverTab = () => {
+      switch (activeCaregiversTab) {
+        case 'circle':
+          return <CirclePage profileType={profileType} onBack={handleCaregiverBack} />;
+        case 'ask-cella':
+          return <AskCellaPage onBack={handleCaregiverBack} />;
+        default:
+          return <CirclePage profileType={profileType} onBack={handleCaregiverBack} />;
+      }
+    };
+
+    return (
+      <div className="min-h-screen cella-gradient flex flex-col">
+        <div className="flex-1 pb-20">
+          {renderCaregiverTab()}
+        </div>
+        <CaregiverBottomNavigation 
+          activeTab={activeCaregiversTab} 
+          onTabChange={setActiveCaregiverTab}
+          onBack={handleCaregiverBack}
+          onSignOut={handleCaregiverSignOut}
+        />
         <Footer />
       </div>
     );
@@ -92,21 +145,23 @@ const Index = () => {
         return <CirclePage profileType={profileType} />;
       case 'health-logs':
         return <HealthLogsPage />;
-      case 'profile':
-        return <ProfilePage profileType={profileType} onProfileChange={(type) => {
-          if (type === null) {
-            // Sign out
-            setUserProfile(null);
-            setProfileType(null);
-            setShowCaregiverDashboard(false);
-            setShowAuth(true);
-            return;
-          }
-          setProfileType(type);
-          if (type === 'caregiver') {
-            setShowCaregiverDashboard(true);
-          }
-        }} />;
+        case 'profile':
+          return <ProfilePage profileType={profileType} onProfileChange={(type) => {
+            if (type === null) {
+              // Sign out
+              setUserProfile(null);
+              setProfileType(null);
+              setShowCaregiverDashboard(false);
+              setShowCaregiverTabs(false);
+              setShowAuth(true);
+              return;
+            }
+            setProfileType(type);
+            if (type === 'caregiver') {
+              setShowCaregiverDashboard(true);
+              setShowCaregiverTabs(false);
+            }
+          }} />;
       default:
         return <HomePage profileType={profileType} />;
     }
