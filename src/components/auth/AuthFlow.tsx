@@ -6,6 +6,7 @@ import ProfileSetupStep from "./ProfileSetupStep";
 import AuthLayout from "./AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Heart, ArrowLeft } from "lucide-react";
+import Footer from "@/components/Footer";
 
 interface AuthFlowProps {
   onComplete: (profile: any) => void;
@@ -121,6 +122,7 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
             </div>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }

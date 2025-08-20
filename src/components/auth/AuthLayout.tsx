@@ -1,5 +1,6 @@
 
 import { Heart } from "lucide-react";
+import Footer from "@/components/Footer";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -50,6 +51,7 @@ const AuthLayout = ({ children, title, subtitle, step, totalSteps }: AuthLayoutP
           {children}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

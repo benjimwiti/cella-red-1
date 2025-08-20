@@ -2,6 +2,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Plus, ArrowLeft } from "lucide-react";
+import Footer from "@/components/Footer";
 
 interface ProfileSelectorProps {
   onProfileSelect: (type: 'patient' | 'caregiver') => void;
@@ -10,7 +11,7 @@ interface ProfileSelectorProps {
 
 const ProfileSelector = ({ onProfileSelect, onBack }: ProfileSelectorProps) => {
   return (
-    <div className="min-h-screen cella-gradient flex items-center justify-center p-6">
+    <div className="min-h-screen cella-gradient flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-md animate-fade-in">
         {onBack && (
           <button
@@ -66,6 +67,7 @@ const ProfileSelector = ({ onProfileSelect, onBack }: ProfileSelectorProps) => {
           You can change this setting anytime in your profile
         </p>
       </div>
+      <Footer />
     </div>
   );
 };

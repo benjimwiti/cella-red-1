@@ -117,7 +117,9 @@ const Index = () => {
       <div className="flex-1 pb-20">
         {renderActiveTab()}
       </div>
-      <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      {profileType === 'patient' && (
+        <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      )}
       <Footer />
     </div>
   );
