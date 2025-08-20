@@ -12,6 +12,7 @@ import ProfilePage from '@/components/pages/ProfilePage';
 import CirclePage from '@/components/pages/CirclePage';
 import CaregiverDashboard from '@/components/CaregiverDashboard';
 import AuthFlow from '@/components/auth/AuthFlow';
+import Footer from '@/components/Footer';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -71,13 +72,10 @@ const Index = () => {
   if (showCaregiverDashboard) {
     return (
       <div className="min-h-screen cella-gradient flex flex-col">
-        <div className="flex-1 pb-20">
+        <div className="flex-1">
           <CaregiverDashboard />
         </div>
-        <BottomNavigation activeTab={activeTab} onTabChange={(tab) => {
-          setActiveTab(tab);
-          setShowCaregiverDashboard(false);
-        }} />
+        <Footer />
       </div>
     );
   }
@@ -120,6 +118,7 @@ const Index = () => {
         {renderActiveTab()}
       </div>
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <Footer />
     </div>
   );
 };
