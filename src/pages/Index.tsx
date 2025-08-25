@@ -5,11 +5,11 @@ import { useSearchParams } from 'react-router-dom';
 import ProfileSelector from '@/components/ProfileSelector';
 import BottomNavigation from '@/components/BottomNavigation';
 import WarriorHomePage from '@/components/pages/WarriorHomePage';
-import CalendarPage from '@/components/pages/CalendarPage';
-import AskCellaPage from '@/components/pages/AskCellaPage';
+import WarriorCalendarPage from '@/components/pages/WarriorCalendarPage';
+import WarriorAskCellaPage from '@/components/pages/WarriorAskCellaPage';
+import WarriorCirclePage from '@/components/pages/WarriorCirclePage';
+import WarriorProfilePage from '@/components/pages/WarriorProfilePage';
 import HealthLogsPage from '@/components/pages/HealthLogsPage';
-import ProfilePage from '@/components/pages/ProfilePage';
-import CirclePage from '@/components/pages/CirclePage';
 import CaregiverDashboard from '@/components/CaregiverDashboard';
 import CaregiverBottomNavigation from '@/components/CaregiverBottomNavigation';
 import AuthFlow from '@/components/auth/AuthFlow';
@@ -109,11 +109,11 @@ const Index = () => {
     const renderCaregiverTab = () => {
       switch (activeCaregiversTab) {
         case 'circle':
-          return <CirclePage profileType={profileType} onBack={handleCaregiverBack} />;
+          return <WarriorCirclePage profileType={profileType} onBack={handleCaregiverBack} />;
         case 'ask-cella':
-          return <AskCellaPage onBack={handleCaregiverBack} />;
+          return <WarriorAskCellaPage onBack={handleCaregiverBack} />;
         default:
-          return <CirclePage profileType={profileType} onBack={handleCaregiverBack} />;
+          return <WarriorCirclePage profileType={profileType} onBack={handleCaregiverBack} />;
       }
     };
 
@@ -138,15 +138,15 @@ const Index = () => {
       case 'home':
         return <WarriorHomePage profileType={profileType} />;
       case 'calendar':
-        return <CalendarPage />;
+        return <WarriorCalendarPage />;
       case 'ask-cella':
-        return <AskCellaPage />;
+        return <WarriorAskCellaPage />;
       case 'circle':
-        return <CirclePage profileType={profileType} />;
+        return <WarriorCirclePage profileType={profileType} />;
       case 'health-logs':
         return <HealthLogsPage />;
         case 'profile':
-          return <ProfilePage profileType={profileType} onProfileChange={(type) => {
+          return <WarriorProfilePage profileType={profileType} onProfileChange={(type) => {
             if (type === null) {
               // Sign out
               setUserProfile(null);
