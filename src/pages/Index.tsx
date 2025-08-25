@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSearchParams } from 'react-router-dom';
 import ProfileSelector from '@/components/ProfileSelector';
 import BottomNavigation from '@/components/BottomNavigation';
-import HomePage from '@/components/pages/HomePage';
+import WarriorHomePage from '@/components/pages/WarriorHomePage';
 import CalendarPage from '@/components/pages/CalendarPage';
 import AskCellaPage from '@/components/pages/AskCellaPage';
 import HealthLogsPage from '@/components/pages/HealthLogsPage';
@@ -136,7 +136,7 @@ const Index = () => {
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'home':
-        return <HomePage profileType={profileType} />;
+        return <WarriorHomePage profileType={profileType} />;
       case 'calendar':
         return <CalendarPage />;
       case 'ask-cella':
@@ -163,7 +163,7 @@ const Index = () => {
             }
           }} />;
       default:
-        return <HomePage profileType={profileType} />;
+        return <WarriorHomePage profileType={profileType} />;
     }
   };
 
