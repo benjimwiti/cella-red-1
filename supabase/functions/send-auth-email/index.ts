@@ -92,7 +92,7 @@ const handler = async (req: Request): Promise<Response> => {
     const template = getEmailTemplate(token, type);
 
     const emailResponse = await resend.emails.send({
-      from: "Cella <cella.app.scd@gmail.com>",
+      from: "Cella <onboarding@resend.dev>",
       to: [email],
       subject: template.subject,
       html: template.html,
