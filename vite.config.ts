@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-base: "/cella-red-1/",
+base: "/cella-red-1/main.tsx",
   server: {
     host: "::",
     port: 8080,
