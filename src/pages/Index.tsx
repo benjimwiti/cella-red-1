@@ -145,26 +145,26 @@ const Index = () => {
         return <WarriorCirclePage profileType={profileType} />;
       case 'health-logs':
         return <HealthLogsPage />;
-        case 'profile':
-          return <WarriorProfilePage profileType={profileType} onProfileChange={(type) => {
-            if (type === null) {
-              // Sign out
-              setUserProfile(null);
-              setProfileType(null);
-              setShowCaregiverDashboard(false);
-              setShowCaregiverTabs(false);
-              setShowAuth(true);
-              return;
-            }
-            setProfileType(type);
-            if (type === 'caregiver') {
-              setShowCaregiverDashboard(true);
-              setShowCaregiverTabs(false);
-            }
-          }} />;
-      default:
-        return <WarriorHomePage profileType={profileType} />;
-    }
+      case 'profile':
+        return <WarriorProfilePage profileType={profileType} onProfileChange={(type) => {
+          if (type === null) {
+            // Sign out
+            setUserProfile(null);
+            setProfileType(null);
+            setShowCaregiverDashboard(false);
+            setShowCaregiverTabs(false);
+            setShowAuth(true);
+            return;
+          }
+          setProfileType(type);
+          if (type === 'caregiver') {
+            setShowCaregiverDashboard(true);
+            setShowCaregiverTabs(false);
+          }
+        }} />;
+    default:
+      return <WarriorHomePage profileType={profileType} />;
+  }
   };
 
   return (

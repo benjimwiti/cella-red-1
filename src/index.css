@@ -93,7 +93,7 @@
   }
 
   body {
-    @apply bg-brand-white text-brand-charcoal font-sans antialiased;
+    @apply bg-background text-foreground font-sans antialiased;
     font-size: 1rem;
     line-height: 1.6;
   }
@@ -120,19 +120,23 @@
 
 @layer components {
   .glass-effect {
-    @apply bg-white/95 backdrop-blur-sm border border-brand-grey/30 shadow-subtle;
+    @apply bg-white/95 backdrop-blur-sm border border-brand-grey/30 shadow-subtle dark:bg-gray-900/95 dark:border-gray-700/30;
   }
-  
+
   .card-hover {
     @apply transition-all duration-200 hover:shadow-card hover:scale-[1.01];
   }
-  
+
   .safe-area-pb {
     padding-bottom: env(safe-area-inset-bottom);
   }
 
   .cella-gradient {
     background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+  }
+
+  .dark .cella-gradient {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
   }
 
   .brand-button {
