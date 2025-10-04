@@ -20,9 +20,7 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-brand-grey/30 safe-area-pb z-50">
       <div className="w-full max-w-md mx-auto px-2 sm:px-4 py-2">
-        <div className="flex justify-end pb-1">
-          <ThemeToggle />
-        </div>
+ 
         <div className="flex justify-around items-center">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -45,6 +43,7 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
               </button>
             );
           })}
+          <ThemeToggle />
         </div>
       </div>
     </div>
