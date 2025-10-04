@@ -76,7 +76,7 @@ const Index = () => {
       <div className="min-h-screen cella-gradient flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-red mx-auto"></div>
-          <p className="mt-2 text-brand-charcoal/70">Loading...</p>
+          <p className="mt-2 text-foreground/70">Loading...</p>
         </div>
       </div>
     );
@@ -145,26 +145,26 @@ const Index = () => {
         return <WarriorCirclePage profileType={profileType} />;
       case 'health-logs':
         return <HealthLogsPage />;
-        case 'profile':
-          return <WarriorProfilePage profileType={profileType} onProfileChange={(type) => {
-            if (type === null) {
-              // Sign out
-              setUserProfile(null);
-              setProfileType(null);
-              setShowCaregiverDashboard(false);
-              setShowCaregiverTabs(false);
-              setShowAuth(true);
-              return;
-            }
-            setProfileType(type);
-            if (type === 'caregiver') {
-              setShowCaregiverDashboard(true);
-              setShowCaregiverTabs(false);
-            }
-          }} />;
-      default:
-        return <WarriorHomePage profileType={profileType} />;
-    }
+      case 'profile':
+        return <WarriorProfilePage profileType={profileType} onProfileChange={(type) => {
+          if (type === null) {
+            // Sign out
+            setUserProfile(null);
+            setProfileType(null);
+            setShowCaregiverDashboard(false);
+            setShowCaregiverTabs(false);
+            setShowAuth(true);
+            return;
+          }
+          setProfileType(type);
+          if (type === 'caregiver') {
+            setShowCaregiverDashboard(true);
+            setShowCaregiverTabs(false);
+          }
+        }} />;
+    default:
+      return <WarriorHomePage profileType={profileType} />;
+  }
   };
 
   return (

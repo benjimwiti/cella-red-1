@@ -1,0 +1,75 @@
+
+---
+
+### **1. Database (PostgreSQL via Supabase)**
+- **Tables:**  
+  - `profiles`: Stores user profile info (linked to Supabase Auth users).
+  - `hydration_logs`, `medications`, `medication_logs`, `crisis_logs`, `meals`, `appointments`, `weather_logs`, `chat_logs`: Each table tracks a specific health or activity metric for users.
+- **Relationships:**  
+  - Most tables use `user_id` as a foreign key referencing `auth.users`.
+  - Medication logs reference both `user_id` and `medication_id`.
+- **Row Level Security (RLS):**  
+  - Strict RLS policies ensure users can only access their own data.
+- **Triggers:**  
+  - On user signup, a trigger automatically creates a profile entry.
+
+See the migration file: 20250704055015-6a339829-78cb-4b06-8e16-e0b767950c3e.sql
+
+---
+
+### **2. Supabase**
+- **Auth:**  
+  - Handles user authentication and session management.
+- **Edge Functions:**  
+  - Used for custom logic, e.g., sending OTP emails and AI chat interactions.
+- **Client Integration:**  
+  - The frontend uses the Supabase JS client (src/integrations/supabase/client.ts) to interact with the database and auth.
+
+---
+
+### **3. API Services**
+- **HealthService:**  
+  - Encapsulates logic for hydration, medication, crisis, meal, and appointment tracking.
+  - Communicates with Supabase tables for CRUD operations.
+  - Example: healthService.ts
+- **AIService:**  
+  - Handles AI chat interactions, logs conversations, and invokes Supabase Edge Functions.
+  - Example: aiService.ts
+
+---
+
+### **4. Security**
+- **Row Level Security (RLS):**  
+  - All tables have RLS enabled, with policies restricting access to the authenticated user’s own records.
+- **Policies:**  
+  - SELECT, INSERT, UPDATE, DELETE policies for each table.
+
+---
+
+### **5. Data Flow**
+- **Frontend** (React + Vite) calls service functions (e.g., `HealthService`, `AIService`).
+- **Service functions** use Supabase client to read/write data.
+- **Supabase** enforces RLS and triggers.
+- **Database** stores all user and health-related data.
+
+---
+
+### **Summary Diagram**
+
+```
+[Frontend (React/Vite)]
+        |
+        v
+[Supabase JS Client]
+        |
+        v
+[Supabase Backend]
+   |           |
+[Auth]     [Database (Postgres)]
+   |           |
+[Edge Functions] (custom logic)
+```
+
+---
+
+**Let me know if you want details on any specific part!**

@@ -22,12 +22,12 @@ const AuthLayout = ({ children, title, subtitle, step, totalSteps }: AuthLayoutP
                 <Heart className="w-8 h-8 text-white" />
               </div>
             </div>
-            <h1 className="text-4xl font-bold text-brand-charcoal mb-2">Cella</h1>
+            <h1 className="text-4xl font-bold text-foreground mb-2">Cella</h1>
           </div>
 
           {/* Progress Steps */}
           {step && totalSteps && (
-            <div className="flex items-center justify-center mb-8 space-x-3">
+            <div className="flex items-center justify-center mb-8 space-x-3 text-foreground">
               {Array.from({ length: totalSteps }, (_, i) => (
                 <div
                   key={i}
@@ -41,9 +41,9 @@ const AuthLayout = ({ children, title, subtitle, step, totalSteps }: AuthLayoutP
 
           {/* Title and Subtitle */}
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-brand-charcoal mb-3">{title}</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-3">{title}</h2>
             {subtitle && (
-              <p className="text-brand-charcoal/70 leading-relaxed text-lg">{subtitle}</p>
+              <p className="text-foreground/70 leading-relaxed text-lg">{subtitle}</p>
             )}
           </div>
 

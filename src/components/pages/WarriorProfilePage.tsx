@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useState } from "react";
 
 interface WarriorProfilePageProps {
@@ -264,13 +265,29 @@ const WarriorProfilePage = ({ profileType, onProfileChange }: WarriorProfilePage
               </CardContent>
             </Card>
 
+            {/* Theme Toggle */}
+            <Card className="shadow-lg border-0">
+              <CardHeader>
+                <CardTitle>Appearance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Theme</p>
+                    <p className="text-sm text-gray-600">Choose your preferred theme</p>
+                  </div>
+                  <ThemeToggle />
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Settings Options */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {profileOptions.map((option, index) => {
                 const Icon = option.icon;
                 return (
-                  <Card 
-                    key={index} 
+                  <Card
+                    key={index}
                     className="shadow-lg border-0 cursor-pointer hover:shadow-xl transition-all duration-300 group overflow-hidden"
                   >
                     <div className={`h-2 bg-gradient-to-r ${option.color}`}></div>
