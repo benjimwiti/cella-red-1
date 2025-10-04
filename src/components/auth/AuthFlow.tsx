@@ -87,7 +87,7 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
                   <Heart className="w-8 h-8 text-white" />
                 </div>
               </div>
-              <h1 className="text-4xl font-bold text-brand-charcoal mb-2">Cella</h1>
+              <h1 className="text-4xl font-bold bg-background text-foreground mb-2">Cella</h1>
             </div>
 
             <div className="bg-white rounded-2xl shadow-card p-8 space-y-8">
@@ -99,23 +99,23 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
                 Back
               </button>
 
-              <div className="text-center">
+              <div className="text-center text-foreground">
                 <div className="w-16 h-16 bg-brand-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <div className="w-8 h-8 bg-brand-success rounded-full flex items-center justify-center">
                     <span className="text-white text-lg font-bold">✓</span>
                   </div>
                 </div>
-                <h2 className="text-2xl font-bold text-brand-charcoal mb-2">
+                <h2 className="text-2xl font-bold text-foreground mb-2">
                   Welcome to Cella{profile?.fullName ? `, ${profile.fullName}!` : '!'}
                 </h2>
-                <p className="text-brand-charcoal/70 leading-relaxed">
+                <p className="text-foreground opacity-70 leading-relaxed">
                   🎉 You're all set up! Your health companion is ready to help you manage your sickle cell journey.
                 </p>
               </div>
               
               <Button 
                 onClick={handleFinalComplete}
-                className="w-full h-14 brand-button text-lg font-semibold"
+                className="w-full h-14 brand-button text-lg font-semibold text-foreground"
               >
                 Get Started
               </Button>
