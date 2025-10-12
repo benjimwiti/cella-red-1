@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import AuthLayout from "./AuthLayout";
 
 interface EmailStepProps {
+  
   onNext: (email: string) => void;
   onSkipDemo?: () => void;
   isLogin?: boolean;

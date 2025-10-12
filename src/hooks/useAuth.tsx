@@ -60,6 +60,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       // Generate a 6-digit OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      console.log('Generated OTP:', otp);
       
       // Send custom email using our Edge Function
       const { error: emailError } = await supabase.functions.invoke('send-auth-email', {

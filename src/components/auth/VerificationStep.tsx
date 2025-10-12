@@ -100,7 +100,7 @@ const VerificationStep = ({ email, onNext, onBack, onSkipDemo, isLogin = false }
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="flex justify-center">
             <InputOTP maxLength={6} value={code} onChange={setCode}>
-              <InputOTPGroup className="gap-3">
+              <InputOTPGroup className="gap-3 text-black">
                 <InputOTPSlot index={0} className="w-14 h-14 text-xl border-brand-grey focus:border-brand-red" />
                 <InputOTPSlot index={1} className="w-14 h-14 text-xl border-brand-grey focus:border-brand-red" />
                 <InputOTPSlot index={2} className="w-14 h-14 text-xl border-brand-grey focus:border-brand-red" />
