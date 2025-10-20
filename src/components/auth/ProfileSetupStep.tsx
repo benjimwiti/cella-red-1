@@ -9,6 +9,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon, Heart, ArrowLeft } from "lucide-react";
 import { format, parse, isValid } from "date-fns";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import AuthLayout from "./AuthLayout";
 
 interface ProfileSetupStepProps {
@@ -42,13 +44,38 @@ const ProfileSetupStep = ({ onComplete, onBack, onSkipDemo }: ProfileSetupStepPr
     }
   };
 
+  const { user } = useAuth();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName || !dateOfBirth) return;
+    if (!fullName || !dateOfBirth || !user) return;
 
     setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    try {
+      // Save profile to database
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          email: user.email,
+          name: fullName,
+          gender: gender === "prefer-not-to-say" ? null : gender,
+          date_of_birth: dateOfBirth.toISOString().split('T')[0], // Convert to YYYY-MM-DD format
+          role: role,
+          region: country || null
+        });
+
+      if (error) {
+        console.error('Error saving profile:', error);
+        // Handle error - could show toast
+      } else {
+        console.log('Profile saved successfully');
+      }
+    } catch (error) {
+      console.error('Unexpected error saving profile:', error);
+    }
+
     setIsLoading(false);
 
     onComplete({

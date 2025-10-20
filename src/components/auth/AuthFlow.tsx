@@ -7,6 +7,7 @@ import AuthLayout from "./AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Heart, ArrowLeft } from "lucide-react";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AuthFlowProps {
   onComplete: (profile: any) => void;
@@ -17,10 +18,15 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
   const [step, setStep] = useState<"email" | "verification" | "profile" | "success">("email");
   const [email, setEmail] = useState("");
   const [profile, setProfile] = useState<any>(null);
+  
+  const { user } = useAuth();
+
+
 
   const handleEmailNext = (email: string) => {
     setEmail(email);
     setStep("verification");
+    console.log("from email to verification component");
   };
 
   const handleVerificationNext = () => {
@@ -90,7 +96,7 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
               <h1 className="text-4xl font-bold bg-background text-foreground mb-2">Cella</h1>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-card p-8 space-y-8">
+            <div className="bg-white rounded-2xl shadow-card p-8 space-y-8 text-foreground">
               <button
                 onClick={handleBackFromSuccess}
                 className="flex items-center text-brand-charcoal/70 hover:text-brand-charcoal transition-colors mb-4"
@@ -108,7 +114,7 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
                 <h2 className="text-2xl font-bold text-foreground mb-2">
                   Welcome to Cella{profile?.fullName ? `, ${profile.fullName}!` : '!'}
                 </h2>
-                <p className="text-foreground opacity-70 leading-relaxed">
+                <p className="text-black opacity-70 leading-relaxed">
                   🎉 You're all set up! Your health companion is ready to help you manage your sickle cell journey.
                 </p>
               </div>
@@ -128,6 +134,14 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
   }
 
   if (step === "email") {
+
+    if (user) {
+      setEmail(user.email || "");
+      setStep("profile");
+      console.log("user exists, moving to profile step");
+      return null;
+    } else {
+
     return (
       <EmailStep 
         onNext={handleEmailNext} 
@@ -135,6 +149,7 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
         isLogin={isLogin} 
       />
     );
+  } 
   }
 
   if (step === "verification") {

@@ -16,8 +16,9 @@ interface EmailStepProps {
 
 const EmailStep = ({ onNext, onSkipDemo, isLogin = false }: EmailStepProps) => {
   const [email, setEmail] = useState("");
+  const [pwd, setPwd] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { sendOTP } = useAuth();
+  const { signUp } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,12 +28,12 @@ const EmailStep = ({ onNext, onSkipDemo, isLogin = false }: EmailStepProps) => {
     setIsLoading(true);
     
     try {
-      const { error } = await sendOTP(email);
-      
-      if (error) {
+      const result = await signUp(email, pwd);
+
+      if ('error' in result && result.error) {
         toast({
           title: "Error",
-          description: error.message,
+          description: result.error.message,
           variant: "destructive"
         });
       } else {
@@ -40,6 +41,7 @@ const EmailStep = ({ onNext, onSkipDemo, isLogin = false }: EmailStepProps) => {
           title: "Code sent! 💧",
           description: "Check your email for the verification code."
         });
+        console.log("onNext email:", email);
         onNext(email);
       }
     } catch (error) {
@@ -83,11 +85,26 @@ const EmailStep = ({ onNext, onSkipDemo, isLogin = false }: EmailStepProps) => {
             />
           </div>
 
+          <div className="space-y-3">
+            <Label htmlFor="pwd" className="text-brand-charcoal font-medium">
+              Password
+            </Label>
+            <Input
+              id="pwd"
+              type="password"
+              placeholder="choose a password to access your cella account"
+              value={pwd}
+              onChange={(e) => setPwd(e.target.value)}
+              className="h-14 text-base brand-input"
+              required
+            />
+          </div>
+
           <div className="space-y-4">
             <Button 
               type="submit" 
               className="w-full h-14 brand-button text-lg font-semibold"
-              disabled={isLoading || !email}
+              disabled={isLoading || !email || !pwd}
             >
               {isLoading ? "Sending..." : isLogin ? "Send Login Code" : "Continue"}
             </Button>
