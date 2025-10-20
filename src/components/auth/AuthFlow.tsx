@@ -105,16 +105,16 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
                 Back
               </button>
 
-              <div className="text-center text-foreground">
+              <div className="text-center text-foreground-secondary space-y-6">
                 <div className="w-16 h-16 bg-brand-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <div className="w-8 h-8 bg-brand-success rounded-full flex items-center justify-center">
                     <span className="text-white text-lg font-bold">✓</span>
                   </div>
                 </div>
-                <h2 className="text-2xl font-bold text-foreground mb-2">
+                <h2 className="text-2xl font-bold mb-2">
                   Welcome to Cella{profile?.fullName ? `, ${profile.fullName}!` : '!'}
                 </h2>
-                <p className="text-black opacity-70 leading-relaxed">
+                <p className="opacity-70 leading-relaxed">
                   🎉 You're all set up! Your health companion is ready to help you manage your sickle cell journey.
                 </p>
               </div>
@@ -140,7 +140,8 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
       setStep("profile");
       console.log("user exists, moving to profile step");
       return null;
-    } else {
+    } 
+    else {
 
     return (
       <EmailStep 
