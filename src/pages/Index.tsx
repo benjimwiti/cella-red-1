@@ -14,6 +14,7 @@ import CaregiverDashboard from '@/components/CaregiverDashboard';
 import CaregiverBottomNavigation from '@/components/CaregiverBottomNavigation';
 import AuthFlow from '@/components/auth/AuthFlow';
 import Footer from '@/components/Footer';
+import NotFound from "./NotFound.tsx";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -37,6 +38,7 @@ const Index = () => {
   const handleAuthComplete = (profile: any) => {
     setUserProfile(profile);
     setShowAuth(false);
+    //console.log("running handleAuthComplete, profile set;", profile);
   };
 
   const handleProfileSelect = (type: 'patient' | 'caregiver') => {
@@ -70,6 +72,7 @@ const Index = () => {
     setShowAuth(true);
   };
 
+  // program starts here
   // Show loading while checking auth state
   if (loading) {
     return (
@@ -83,12 +86,16 @@ const Index = () => {
   }
 
   // Show auth flow if not authenticated and showAuth is true
-  if (!user && showAuth) {
+  console.log("showAuth:", showAuth, "user:", user);
+  if (!user || showAuth) {
     return <AuthFlow onComplete={handleAuthComplete} />;
   }
 
   // Show profile selector if authenticated but no profile type selected
-  if (userProfile && !profileType) {
+  console.log("userProfile:", userProfile, "profileType:", profileType);
+ // if (userProfile && !profileType) {
+  if (!profileType) {
+    console.log("showing profile selector");
     return <ProfileSelector onProfileSelect={handleProfileSelect} onBack={handleBackToAuth} />;
   }
 
@@ -96,7 +103,7 @@ const Index = () => {
   if (showCaregiverDashboard) {
     return (
       <div className="min-h-screen cella-gradient flex flex-col">
-        <div className="flex-1">
+        <div className="flex-1 pb-20">
           <CaregiverDashboard onNavigateToTabs={() => setShowCaregiverTabs(true)} />
         </div>
         <Footer />
@@ -122,13 +129,14 @@ const Index = () => {
         <div className="flex-1 pb-20">
           {renderCaregiverTab()}
         </div>
-        <CaregiverBottomNavigation 
-          activeTab={activeCaregiversTab} 
+        <Footer
+          showNavigation={true}
+          activeTab={activeCaregiversTab}
           onTabChange={setActiveCaregiverTab}
+          navigationType="caregiver"
           onBack={handleCaregiverBack}
           onSignOut={handleCaregiverSignOut}
         />
-        <Footer />
       </div>
     );
   }
@@ -136,7 +144,8 @@ const Index = () => {
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'home':
-        return <WarriorHomePage profileType={profileType} />;
+        return <NotFound />;
+       // return <WarriorHomePage profileType={profileType} activeTab={activeTab} onTabChange={setActiveTab} />;
       case 'calendar':
         return <WarriorCalendarPage />;
       case 'ask-cella':
@@ -163,7 +172,8 @@ const Index = () => {
           }
         }} />;
     default:
-      return <WarriorHomePage profileType={profileType} />;
+      //return <WarriorHomePage profileType={profileType} activeTab={activeTab} onTabChange={setActiveTab} />;
+      return <NotFound />
   }
   };
 
@@ -172,10 +182,12 @@ const Index = () => {
       <div className="flex-1 pb-20">
         {renderActiveTab()}
       </div>
-      {profileType === 'patient' && (
-        <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-      )}
-      <Footer />
+      <Footer
+        showNavigation={profileType === 'patient'}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        navigationType="patient"
+      />
     </div>
   );
 };

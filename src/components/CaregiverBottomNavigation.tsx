@@ -15,8 +15,7 @@ const CaregiverBottomNavigation = ({ activeTab, onTabChange, onBack, onSignOut }
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-brand-grey/30 safe-area-pb z-50">
-      <div className="w-full max-w-md mx-auto px-2 sm:px-4 py-2">
+    <div className="w-full max-w-md mx-auto px-2 sm:px-4 py-2">
         <div className="flex justify-end pb-1">
           <ThemeToggle />
         </div>
@@ -63,7 +62,6 @@ const CaregiverBottomNavigation = ({ activeTab, onTabChange, onBack, onSignOut }
           </button>
         </div>
       </div>
-    </div>
   );
 };
 

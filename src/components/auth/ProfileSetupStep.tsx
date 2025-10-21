@@ -7,8 +7,10 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon, Heart, ArrowLeft } from "lucide-react";
-import { format } from "date-fns";
+import { format, parse, isValid } from "date-fns";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import AuthLayout from "./AuthLayout";
 
 interface ProfileSetupStepProps {
@@ -21,6 +23,7 @@ const ProfileSetupStep = ({ onComplete, onBack, onSkipDemo }: ProfileSetupStepPr
   const [fullName, setFullName] = useState("");
   const [gender, setGender] = useState<"male" | "female" | "prefer-not-to-say">("female");
   const [dateOfBirth, setDateOfBirth] = useState<Date>();
+  const [dateInput, setDateInput] = useState("");
   const [role, setRole] = useState<"warrior" | "caregiver">("warrior");
   const [country, setCountry] = useState("");
   const [pin, setPin] = useState("");
@@ -31,15 +34,50 @@ const ProfileSetupStep = ({ onComplete, onBack, onSkipDemo }: ProfileSetupStepPr
     female: "/lovable-uploads/c59e64c1-b31d-4b6c-9512-be81ef112725.png"
   };
 
+  const handleDateInputChange = (value: string) => {
+    setDateInput(value);
+    const parsedDate = parse(value, "MM/dd/yyyy", new Date());
+    if (isValid(parsedDate) && parsedDate <= new Date() && parsedDate >= new Date("1900-01-01")) {
+      setDateOfBirth(parsedDate);
+    } else if (value === "") {
+      setDateOfBirth(undefined);
+    }
+  };
+
+  const { user } = useAuth();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName || !dateOfBirth) return;
-    
+    if (!fullName || !dateOfBirth || !user) return;
+
     setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    try {
+      // Save profile to database
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          email: user.email,
+          name: fullName,
+          gender: gender === "prefer-not-to-say" ? null : gender,
+          date_of_birth: dateOfBirth.toISOString().split('T')[0], // Convert to YYYY-MM-DD format
+          role: role,
+          region: country || null
+        });
+
+      if (error) {
+        console.error('Error saving profile:', error);
+        // Handle error - could show toast
+      } else {
+        console.log('Profile saved successfully');
+      }
+    } catch (error) {
+      console.error('Unexpected error saving profile:', error);
+    }
+
     setIsLoading(false);
-    
+
     onComplete({
       fullName,
       gender,
@@ -124,30 +162,47 @@ const ProfileSetupStep = ({ onComplete, onBack, onSkipDemo }: ProfileSetupStepPr
           {/* Date of Birth */}
           <div className="space-y-3">
             <Label className="text-brand-charcoal font-medium">Date of Birth</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full h-14 justify-start text-left font-normal brand-input",
-                    !dateOfBirth && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-3 h-5 w-5" />
-                  {dateOfBirth ? format(dateOfBirth, "PPP") : "Pick a date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 shadow-card" align="start">
-                <Calendar
-                  mode="single"
-                  selected={dateOfBirth}
-                  onSelect={setDateOfBirth}
-                  disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                  initialFocus
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
+            <div className="space-y-2">
+              <Input
+                type="text"
+                placeholder="MM/DD/YYYY (e.g., 01/15/1990)"
+                value={dateInput}
+                onChange={(e) => handleDateInputChange(e.target.value)}
+                className="h-14 text-base brand-input"
+              />
+              <div className="text-sm text-brand-charcoal/60">Or select from calendar:</div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full h-14 justify-start text-left font-normal brand-input",
+                      !dateOfBirth && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-3 h-5 w-5" />
+                    {dateOfBirth ? format(dateOfBirth, "PPP") : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 shadow-card" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateOfBirth}
+                    onSelect={(date) => {
+                      setDateOfBirth(date);
+                      if (date) {
+                        setDateInput(format(date, "MM/dd/yyyy"));
+                      } else {
+                        setDateInput("");
+                      }
+                    }}
+                    disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
 
           {/* Role */}

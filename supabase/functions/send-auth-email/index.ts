@@ -46,9 +46,9 @@ const getEmailTemplate = (token: string, type: string) => {
       </div>
     `,
     text: `
-Hi there,
+      Hi there,
 
-Welcome to Cella – your companion for tracking and managing sickle cell care.
+      Welcome to Cella – your companion for tracking and managing sickle cell care.
 
 ${message}
 

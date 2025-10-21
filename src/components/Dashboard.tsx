@@ -15,7 +15,7 @@ const Dashboard = ({ profileType }: DashboardProps) => {
   const greeting = profileType === 'patient' ? 'Hello, Warrior!' : 'Hello, Caregiver!';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-cella-rose-light to-white">
+    <div className="min-h-screen bg-gradient-to-br from-white via-cella-rose-light to-white text-foreground">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-md border-b border-white/20 p-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">

@@ -24,100 +24,70 @@ const VerificationStep = ({ email, onNext, onBack, onSkipDemo, isLogin = false }
   const { toast } = useToast();
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          setCanResend(true);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    // const timer = setInterval(() => {
+    //   setCountdown((prev) => {
+    //     if (prev <= 1) {
+    //       setCanResend(true);
+    //       return 0;
+    //     }
+    //     return prev - 1;
+    //   });
+    // }, 1000);
+  
 
-    return () => clearInterval(timer);
+    // return () => clearInterval(timer);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (code.length !== 6) return;
-    
-    setIsLoading(true);
-    
-    try {
-      const { error } = await signIn(email, code);
-      
-      if (error) {
-        toast({
-          title: "Invalid code",
-          description: "Please check your code and try again.",
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Success! ✅",
-          description: "Code verified successfully."
-        });
-        onNext();
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    console.log("running verification step")
+
+  const handleVerifyClick = () => {
+    // Open Gmail in a new tab for verification
+    window.open('https://mail.google.com', '_blank');
+    onNext();
   };
 
-  const handleResend = async () => {
-    setCanResend(false);
-    setCountdown(30);
+  //resend OTP
+  // const handleResend = async () => {
+  //   setCanResend(false);
+  //   setCountdown(30);
     
-    const { error } = await sendOTP(email);
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Code sent! 💧",
-        description: "A new verification code has been sent to your email."
-      });
-    }
-  };
+  //   const { error } = await sendOTP(email);
+  //   if (error) {
+  //     toast({
+  //       title: "Error",
+  //       description: error.message,
+  //       variant: "destructive"
+  //     });
+  //   } else {
+  //     toast({
+  //       title: "Code sent! 💧",
+  //       description: "A new verification code has been sent to your email."
+  //     });
+  //   }
+  // };
 
   return (
     <AuthLayout
       title="Check your email"
-      subtitle={`We've sent a 6-digit code to ${email}`}
+      subtitle={`verify your email at ${email}`}
       step={isLogin ? undefined : 2}
       totalSteps={isLogin ? undefined : 3}
     >
       <div className="bg-white rounded-2xl shadow-card p-8">
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="flex justify-center">
-            <InputOTP maxLength={6} value={code} onChange={setCode}>
-              <InputOTPGroup className="gap-3">
-                <InputOTPSlot index={0} className="w-14 h-14 text-xl border-brand-grey focus:border-brand-red" />
-                <InputOTPSlot index={1} className="w-14 h-14 text-xl border-brand-grey focus:border-brand-red" />
-                <InputOTPSlot index={2} className="w-14 h-14 text-xl border-brand-grey focus:border-brand-red" />
-                <InputOTPSlot index={3} className="w-14 h-14 text-xl border-brand-grey focus:border-brand-red" />
-                <InputOTPSlot index={4} className="w-14 h-14 text-xl border-brand-grey focus:border-brand-red" />
-                <InputOTPSlot index={5} className="w-14 h-14 text-xl border-brand-grey focus:border-brand-red" />
-              </InputOTPGroup>
-            </InputOTP>
+        <div className="space-y-8">
+          <div className="text-center">
+            <p className="text-lg text-gray-700 mb-4">
+              Click the button below to check your Gmail and verify the code manually.
+            </p>
           </div>
 
           <div className="space-y-4">
-            <Button 
-              type="submit" 
+            <Button
+              type="button"
+              onClick={handleVerifyClick}
               className="w-full h-14 brand-button text-lg font-semibold"
-              disabled={isLoading || code.length !== 6}
             >
-              {isLoading ? "Verifying..." : "Verify & Continue"}
+              Open Gmail to Verify
             </Button>
 
             {onSkipDemo && (
@@ -143,7 +113,7 @@ const VerificationStep = ({ email, onNext, onBack, onSkipDemo, isLogin = false }
                 <span>Change email</span>
               </button>
               
-              <div>
+              {/* <div>
                 {canResend ? (
                   <button
                     type="button"
@@ -157,10 +127,10 @@ const VerificationStep = ({ email, onNext, onBack, onSkipDemo, isLogin = false }
                     Resend in {countdown}s
                   </p>
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </AuthLayout>
   );

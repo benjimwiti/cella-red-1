@@ -7,12 +7,15 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import RiskIndicator from "@/components/RiskIndicator";
 import SOSButton from "@/components/SOSButton";
+import BottomNavigation from "@/components/BottomNavigation";
 
 interface WarriorHomePageProps {
   profileType: 'patient' | 'caregiver';
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
 }
 
-const WarriorHomePage = ({ profileType }: WarriorHomePageProps) => {
+const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePageProps) => {
   const [riskLevel] = useState<'low' | 'moderate' | 'high'>('low');
   
   const currentHour = new Date().getHours();

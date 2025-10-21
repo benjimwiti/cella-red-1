@@ -1,26 +1,40 @@
 
 import { useState } from "react";
 import EmailStep from "./EmailStep";
+import PasswordStep from "./PasswordStep";
 import VerificationStep from "./VerificationStep";
 import ProfileSetupStep from "./ProfileSetupStep";
 import AuthLayout from "./AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Heart, ArrowLeft } from "lucide-react";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AuthFlowProps {
   onComplete: (profile: any) => void;
-  isLogin?: boolean;
 }
 
-const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
-  const [step, setStep] = useState<"email" | "verification" | "profile" | "success">("email");
+const AuthFlow = ({ onComplete }: AuthFlowProps) => {
+  const [step, setStep] = useState<"email" | "password" | "verification" | "profile" | "success">("email");
   const [email, setEmail] = useState("");
   const [profile, setProfile] = useState<any>(null);
+  const [isLogin, setIsLogin] = useState(false);
+
+  const { user } = useAuth();
+
+  const handleToLogin = () => {
+    setIsLogin(!isLogin);
+    console.log("Switched to", !isLogin ? "login" : "signup", "mode");
+  }
 
   const handleEmailNext = (email: string) => {
     setEmail(email);
-    setStep("verification");
+    if (isLogin) {
+      setStep("password");
+    } else {
+      setStep("verification");
+    }
+    console.log("from email to", isLogin ? "password" : "verification", "component");
   };
 
   const handleVerificationNext = () => {
@@ -40,36 +54,15 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
     onComplete(profile || { email });
   };
 
-  const handleSkipDemo = () => {
-    // Skip authentication with demo data
-    onComplete({
-      fullName: "Demo User",
-      email: "demo@example.com",
-      gender: "female",
-      role: "warrior"
-    });
-  };
 
-  // Skip for demo - advance to next step
-  const handleSkipToNext = () => {
-    if (step === "email") {
-      setEmail("demo@example.com");
-      setStep("verification");
-    } else if (step === "verification") {
-      setStep("profile");
-    } else if (step === "profile") {
-      handleProfileComplete({
-        fullName: "Demo User",
-        email: "demo@example.com",
-        gender: "female",
-        role: "warrior"
-      });
-    }
+
+  const handlePasswordNext = () => {
+    setStep("success");
   };
 
   const handleBackFromSuccess = () => {
     if (isLogin) {
-      setStep("verification");
+      setStep("password");
     } else {
       setStep("profile");
     }
@@ -90,7 +83,7 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
               <h1 className="text-4xl font-bold bg-background text-foreground mb-2">Cella</h1>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-card p-8 space-y-8">
+            <div className="bg-white rounded-2xl shadow-card p-8 space-y-8 text-foreground">
               <button
                 onClick={handleBackFromSuccess}
                 className="flex items-center text-brand-charcoal/70 hover:text-brand-charcoal transition-colors mb-4"
@@ -99,16 +92,16 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
                 Back
               </button>
 
-              <div className="text-center text-foreground">
+              <div className="text-center text-foreground-secondary space-y-6">
                 <div className="w-16 h-16 bg-brand-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <div className="w-8 h-8 bg-brand-success rounded-full flex items-center justify-center">
                     <span className="text-white text-lg font-bold">✓</span>
                   </div>
                 </div>
-                <h2 className="text-2xl font-bold text-foreground mb-2">
+                <h2 className="text-2xl font-bold mb-2">
                   Welcome to Cella{profile?.fullName ? `, ${profile.fullName}!` : '!'}
                 </h2>
-                <p className="text-foreground opacity-70 leading-relaxed">
+                <p className="opacity-70 leading-relaxed">
                   🎉 You're all set up! Your health companion is ready to help you manage your sickle cell journey.
                 </p>
               </div>
@@ -128,11 +121,31 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
   }
 
   if (step === "email") {
+
+    if (user) {
+      setEmail(user.email || "");
+      setStep("profile");
+      console.log("user exists, moving to profile step");
+      return null;
+    } 
+    else {
+
     return (
       <EmailStep 
         onNext={handleEmailNext} 
-        onSkipDemo={handleSkipToNext}
+        onLogin={handleToLogin}
         isLogin={isLogin} 
+      />
+    );
+  } 
+  }
+
+  if (step === "password") {
+    return (
+      <PasswordStep
+        email={email}
+        onNext={handlePasswordNext}
+        onBack={() => setStep("email")}
       />
     );
   }
@@ -143,7 +156,6 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
         email={email}
         onNext={handleVerificationNext}
         onBack={() => setStep("email")}
-        onSkipDemo={handleSkipToNext}
         isLogin={isLogin}
       />
     );
@@ -154,7 +166,6 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
       <ProfileSetupStep
         onComplete={handleProfileComplete}
         onBack={() => setStep("verification")}
-        onSkipDemo={handleSkipToNext}
       />
     );
   }
