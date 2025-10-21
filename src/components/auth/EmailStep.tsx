@@ -10,39 +10,46 @@ import AuthLayout from "./AuthLayout";
 interface EmailStepProps {
   
   onNext: (email: string) => void;
-  onSkipDemo?: () => void;
+  onLogin?: () => void;
   isLogin?: boolean;
 }
 
-const EmailStep = ({ onNext, onSkipDemo, isLogin = false }: EmailStepProps) => {
+const EmailStep = ({ onNext, onLogin, isLogin = false }: EmailStepProps) => {
   const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
   const { toast } = useToast();
+  const [login, setLogin] = useState(isLogin);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
-    
-    setIsLoading(true);
-    
-    try {
-      const result = await signUp(email, pwd);
+    if (!email || (!isLogin && !pwd)) return;
 
-      if ('error' in result && result.error) {
-        toast({
-          title: "Error",
-          description: result.error.message,
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Code sent! 💧",
-          description: "Check your email for the verification code."
-        });
-        console.log("onNext email:", email);
+    setIsLoading(true);
+
+    try {
+      if (isLogin) {
+        // For login, just proceed to password step
         onNext(email);
+      } else {
+        // For signup, create account
+        const result = await signUp(email, pwd);
+
+        if (result.error) {
+          toast({
+            title: "Error",
+            description: result.error.message,
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Account created! 💧",
+            description: "Please complete your profile setup."
+          });
+          console.log("onNext email:", email);
+          onNext(email);
+        }
       }
     } catch (error) {
       toast({
@@ -55,11 +62,6 @@ const EmailStep = ({ onNext, onSkipDemo, isLogin = false }: EmailStepProps) => {
     }
   };
 
-  const handleSkipDemo = () => {
-    if (onSkipDemo) {
-      onSkipDemo();
-    }
-  };
 
   return (
     <AuthLayout
@@ -85,38 +87,40 @@ const EmailStep = ({ onNext, onSkipDemo, isLogin = false }: EmailStepProps) => {
             />
           </div>
 
-          <div className="space-y-3">
-            <Label htmlFor="pwd" className="text-brand-charcoal font-medium">
-              Password
-            </Label>
-            <Input
-              id="pwd"
-              type="password"
-              placeholder="choose a password to access your cella account"
-              value={pwd}
-              onChange={(e) => setPwd(e.target.value)}
-              className="h-14 text-base brand-input"
-              required
-            />
-          </div>
+          {!isLogin && (
+            <div className="space-y-3">
+              <Label htmlFor="pwd" className="text-brand-charcoal font-medium">
+                Password
+              </Label>
+              <Input
+                id="pwd"
+                type="password"
+                placeholder="choose a password to access your cella account"
+                value={pwd}
+                onChange={(e) => setPwd(e.target.value)}
+                className="h-14 text-base brand-input"
+                required
+              />
+            </div>
+          )}
 
           <div className="space-y-4">
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full h-14 brand-button text-lg font-semibold"
-              disabled={isLoading || !email || !pwd}
+              disabled={isLoading || !email || (!isLogin && !pwd)}
             >
-              {isLoading ? "Sending..." : isLogin ? "Send Login Code" : "Continue"}
+              {isLoading ? "Sending..." : isLogin ? "Continue" : "Continue"}
             </Button>
 
-            {onSkipDemo && (
+            {!isLogin && (
               <Button 
                 type="button"
                 variant="outline"
-                onClick={handleSkipDemo}
+                onClick={onLogin}
                 className="w-full h-14 brand-button-outline text-lg font-semibold"
               >
-                Skip for Demo
+                Already have an account? Log in
               </Button>
             )}
           </div>
@@ -124,7 +128,11 @@ const EmailStep = ({ onNext, onSkipDemo, isLogin = false }: EmailStepProps) => {
           {isLogin && (
             <p className="text-center text-sm text-brand-charcoal/70">
               New here?{" "}
-              <button className="text-brand-red hover:underline font-medium">
+              <button
+                type="button"
+                onClick={onLogin}
+                className="text-brand-red hover:underline font-medium"
+              >
                 Sign up instead
               </button>
             </p>

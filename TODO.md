@@ -1,13 +1,22 @@
-# TODO: Modify Date Input in ProfileSetupStep
+# Task: Implement Email/Password Sign-In Flow
 
-## Completed Tasks
-- [x] Add manual input field for date of birth alongside calendar picker
-- [x] Implement date parsing for manual input (MM/DD/YYYY format)
-- [x] Update calendar selection to sync with manual input
-- [x] Ensure date validation (between 1900-01-01 and current date)
-- [x] Maintain compatibility with existing calendar selection
+## Completed
+- [x] Analyzed current auth flow and components
+- [x] Added signInWithPassword method to useAuth hook
+- [x] Created PasswordStep component for sign-in
+- [x] Updated AuthFlow to handle sign-in mode (EmailStep → PasswordStep → Success)
+- [x] Modified EmailStep to handle both signup and signin modes
+- [x] Updated AuthFlow step progression for sign-in
 
-## Next Steps
-- [ ] Test the new date input functionality
-- [ ] Verify form submission works with both input methods
-- [ ] Check for any edge cases in date parsing
+## Completed
+- [x] Analyzed current auth flow and components
+- [x] Added signInWithPassword method to useAuth hook
+- [x] Created PasswordStep component for sign-in
+- [x] Updated AuthFlow to handle sign-in mode (EmailStep → PasswordStep → Success)
+- [x] Modified EmailStep to handle both signup and signin modes
+- [x] Updated AuthFlow step progression for sign-in
+- [x] Removed demo code from auth flow
+- [x] Added toggle between login and signup modes
+
+## Pending Tasks
+- [ ] Test the complete sign-in flow

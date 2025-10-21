@@ -7,10 +7,10 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, userData: any) => Promise<{ error: any }>;
+  signUp: (email: string, password: string) => Promise<{ data: any; error: any }>;
+  signInWithPassword: (email: string, password: string) => Promise<{ data: any; error: any }>;
   signIn: (email: string, code: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  sendOTP: (email: string, pwd: string) => Promise<{ error: any } | { success: boolean; via: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,105 +41,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // const signUp = async (email: string, userData: any) => {
-  //   const redirectUrl = `${window.location.origin}/`;
-    
-  //   const { error } = await supabase.auth.signUp({
-  //     email,
-  //     password: email, // Using email as password for OTP-based auth
-  //     options: {
-  //       emailRedirectTo: redirectUrl,
-  //       data: userData
-  //     }
-  //   });
-    
-  //   return { error };
-  // };
-
-  // const sendOTP = async (email: string, pwd: string) => {
-  //   try {
-  //     // Generate a 6-digit OTP
-  //     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-  //     // Step 1: Try sending custom OTP email through your Edge Function
-  //     const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-auth-email', {
-  //       body: {
-  //         email,
-  //         token: otp,
-  //         type: 'signup'
-  //       }
-  //     });
-  //     console.log('send-auth-email data/emailresponse:', emailResponse);
-
-  //     // Step 2: Handle network or invocation errors
-  //     if (emailError) {
-  //       console.error('Failed to send custom email:', emailError);
-
-  //       // Step 3: Fallback to Supabase's built-in OTP flow
-  //       const { error: fallbackError } = await supabase.auth.signInWithOtp({
-  //         email,
-  //         options: {
-  //           emailRedirectTo: `${window.location.origin}/`
-  //         }
-  //       });
-
-  //       if (fallbackError) {
-  //         console.error('Fallback OTP failed:', fallbackError.message);
-  //         return { error: fallbackError };
-  //       }
-
-  //       console.log('Fallback OTP sent successfully');
-  //       return { success: true, via: 'fallback' };
-  //     }
-
-  //     // Step 4: Proceed to signup only if custom email function succeeded
-  //     if (emailResponse?.success === true) {
-  //       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-  //         email,
-  //         password: pwd
-  //       });
-
-  //       if (signUpError) {
-  //         console.error('Sign-up failed:', signUpError.message);
-  //         return { error: signUpError };
-  //       }
-
-  //       console.log('Sign-up successful:', signUpData);
-  //       return { success: true, via: 'custom' };
-  //     } else {
-  //       console.warn('Email not eligible for signup:', emailResponse);
-  //       return { error: new Error('Email not eligible for signup') };
-  //     }
-
-  //   } catch (err) {
-  //     console.error('Unexpected error during signup flow:', err);
-  //     return { error: err };
-  //   }
-  // };
-
-//   const signUp = async (email: string, password: string) => {
-//   try {
-//     const { data, error } = await supabase.auth.signUp({
-//       email,
-//       password,
-//       // options: {
-//       //   emailRedirectTo: 'https://yourapp.com/verify', // optional redirect link
-//       // },
-//     });
-
-//     if (error) {
-//       console.error('❌ Sign-up failed:', error.message);
-//       return { data: null, error };
-//     }
-
-//     console.log('✅ Sign-up initiated:', data);
-//     return { data, error: null };
-
-//   } catch (err) {
-//     console.error('🚨 Unexpected error during signup flow:', err);
-//     return { data: null, error: err };
-//   }
-// };
 
  const signUp = async (email: string, password: string) => {
   try {
@@ -211,23 +112,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const signInWithPassword = async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error('❌ Sign-in failed:', error.message);
+        return { data: null, error };
+      }
+
+      console.log('✅ Sign-in successful:', data);
+      return { data, error: null };
+    } catch (err) {
+      console.error('🚨 Unexpected error during sign-in:', err);
+      return { data: null, error: err };
+    }
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
   };
 
-  const sendOTP = async (email: string, pwd: string) => {
-    // Placeholder implementation
-    return { success: true, via: 'placeholder' };
-  };
+
 
   const value = {
     user,
     session,
     loading,
     signUp,
+    signInWithPassword,
     signIn,
     signOut,
-    sendOTP
   };
 
   return (

@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import EmailStep from "./EmailStep";
+import PasswordStep from "./PasswordStep";
 import VerificationStep from "./VerificationStep";
 import ProfileSetupStep from "./ProfileSetupStep";
 import AuthLayout from "./AuthLayout";
@@ -11,22 +12,29 @@ import { useAuth } from "@/hooks/useAuth";
 
 interface AuthFlowProps {
   onComplete: (profile: any) => void;
-  isLogin?: boolean;
 }
 
-const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
-  const [step, setStep] = useState<"email" | "verification" | "profile" | "success">("email");
+const AuthFlow = ({ onComplete }: AuthFlowProps) => {
+  const [step, setStep] = useState<"email" | "password" | "verification" | "profile" | "success">("email");
   const [email, setEmail] = useState("");
   const [profile, setProfile] = useState<any>(null);
-  
+  const [isLogin, setIsLogin] = useState(false);
+
   const { user } = useAuth();
 
-
+  const handleToLogin = () => {
+    setIsLogin(!isLogin);
+    console.log("Switched to", !isLogin ? "login" : "signup", "mode");
+  }
 
   const handleEmailNext = (email: string) => {
     setEmail(email);
-    setStep("verification");
-    console.log("from email to verification component");
+    if (isLogin) {
+      setStep("password");
+    } else {
+      setStep("verification");
+    }
+    console.log("from email to", isLogin ? "password" : "verification", "component");
   };
 
   const handleVerificationNext = () => {
@@ -46,36 +54,15 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
     onComplete(profile || { email });
   };
 
-  const handleSkipDemo = () => {
-    // Skip authentication with demo data
-    onComplete({
-      fullName: "Demo User",
-      email: "demo@example.com",
-      gender: "female",
-      role: "warrior"
-    });
-  };
 
-  // Skip for demo - advance to next step
-  const handleSkipToNext = () => {
-    if (step === "email") {
-      setEmail("demo@example.com");
-      setStep("verification");
-    } else if (step === "verification") {
-      setStep("profile");
-    } else if (step === "profile") {
-      handleProfileComplete({
-        fullName: "Demo User",
-        email: "demo@example.com",
-        gender: "female",
-        role: "warrior"
-      });
-    }
+
+  const handlePasswordNext = () => {
+    setStep("success");
   };
 
   const handleBackFromSuccess = () => {
     if (isLogin) {
-      setStep("verification");
+      setStep("password");
     } else {
       setStep("profile");
     }
@@ -146,11 +133,21 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
     return (
       <EmailStep 
         onNext={handleEmailNext} 
-        onSkipDemo={handleSkipToNext}
+        onLogin={handleToLogin}
         isLogin={isLogin} 
       />
     );
   } 
+  }
+
+  if (step === "password") {
+    return (
+      <PasswordStep
+        email={email}
+        onNext={handlePasswordNext}
+        onBack={() => setStep("email")}
+      />
+    );
   }
 
   if (step === "verification") {
@@ -159,7 +156,6 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
         email={email}
         onNext={handleVerificationNext}
         onBack={() => setStep("email")}
-        onSkipDemo={handleSkipToNext}
         isLogin={isLogin}
       />
     );
@@ -170,7 +166,6 @@ const AuthFlow = ({ onComplete, isLogin = false }: AuthFlowProps) => {
       <ProfileSetupStep
         onComplete={handleProfileComplete}
         onBack={() => setStep("verification")}
-        onSkipDemo={handleSkipToNext}
       />
     );
   }
