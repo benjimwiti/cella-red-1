@@ -8,6 +8,8 @@ import { Progress } from "@/components/ui/progress";
 import RiskIndicator from "@/components/RiskIndicator";
 import SOSButton from "@/components/SOSButton";
 import BottomNavigation from "@/components/BottomNavigation";
+import { useWarriorData } from "@/hooks/useWarriorData";
+import { useAuth } from "@/hooks/useAuth";
 
 interface WarriorHomePageProps {
   profileType: 'patient' | 'caregiver';
@@ -74,6 +76,30 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
       iconColor: 'text-orange-600'
     }
   ];
+
+//   const { user } = useAuth();
+//   const userId = user?.id || "";
+//   const { data, isLoading } = useWarriorData(userId);
+
+//   if (isLoading) return <div>Loading...</div>;
+
+//   const hydration = data?.hydration_logs?.[0];
+//   const meals = data?.meals?.[0];
+//   const meds = data?.medication_logs?.[0];
+//   const profile = data?.profiles?.[0];
+
+//   return (
+//     <div className="p-4">
+//       <h1>Welcome, {profile?.name}</h1>
+//       <p>Hydration: {hydration?.glasses_drank}/{hydration?.target_glasses}</p>
+//       <p>Meals: {meals?.meals_eaten}/{meals?.target_meals}</p>
+//       <p>Medications: {meds?.doses_taken}/{meds?.target_doses}</p>
+//     </div>
+//   );
+// }
+
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
