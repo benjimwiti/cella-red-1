@@ -126,7 +126,7 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
         <RiskIndicator level={riskLevel} />
 
         {/* Today's Progress Overview */}
-        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+        <Card className="shadow-lg border-0 bg-gradient-to-br from-foreground-secondary to-foreground backdrop-blur-sm">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-xl">
               <Activity className="w-6 h-6 text-brand-red" />
@@ -195,7 +195,7 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
 
         {/* Health Tracking Cards */}
         <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+          <h2 className="text-2xl font-bold text-foreground-secondary flex items-center gap-3">
             <Heart className="w-7 h-7 text-brand-red" />
             Health Tracking
           </h2>
@@ -209,13 +209,13 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
                     <action.icon className={`w-8 h-8 ${action.iconColor} mx-auto`} />
                   </div>
                   
-                  <h3 className="font-semibold text-gray-900 mb-2 text-center">{action.title}</h3>
+                  <h3 className="font-semibold text-foreground mb-2 text-center">{action.title}</h3>
                   <p className="text-sm text-gray-600 text-center mb-3">{action.value}</p>
                   
                   {action.progress && (
                     <div className="space-y-2">
                       <Progress value={action.progress} className="h-2" />
-                      <p className="text-xs text-gray-500 text-center">{Math.round(action.progress)}% complete</p>
+                      <p className="text-xs text-foreground text-center">{Math.round(action.progress)}% complete</p>
                     </div>
                   )}
                   
@@ -229,9 +229,9 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
         </div>
 
         {/* Weekly Summary */}
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-gray-50 to-slate-100">
+        <Card className="shadow-lg border-0 bg-gradient-to-br from-foreground to-foreground-secondary/10">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-foreground-secondary">
               <Calendar className="w-6 h-6 text-brand-red" />
               This Week's Highlights
             </CardTitle>

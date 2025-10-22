@@ -15,12 +15,14 @@ import CaregiverBottomNavigation from '@/components/CaregiverBottomNavigation';
 import AuthFlow from '@/components/auth/AuthFlow';
 import Footer from '@/components/Footer';
 import NotFound from "./NotFound.tsx";
+import { toast } from "../hooks/use-toast.ts";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const { user, loading } = useAuth();
   const [searchParams] = useSearchParams();
   const [userProfile, setUserProfile] = useState<any>(null);
-  const [profileType, setProfileType] = useState<'patient' | 'caregiver' | null>(null);
+  const [profileType, setProfileType] = useState<'warrior' | 'caregiver' | null>(null);
   const [activeTab, setActiveTab] = useState('home');
   const [activeCaregiversTab, setActiveCaregiverTab] = useState('circle');
   const [showCaregiverDashboard, setShowCaregiverDashboard] = useState(false);
@@ -41,7 +43,7 @@ const Index = () => {
     //console.log("running handleAuthComplete, profile set;", profile);
   };
 
-  const handleProfileSelect = (type: 'patient' | 'caregiver') => {
+  const handleProfileSelect = (type: 'warrior' | 'caregiver') => {
     setProfileType(type);
     setShowCaregiverDashboard(type === 'caregiver');
     setShowCaregiverTabs(false);
@@ -72,6 +74,30 @@ const Index = () => {
     setShowAuth(true);
   };
 
+  const handleProfilefetch = async ()=> {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id) // assuming the 'profiles' table links to the 'user' via 'id'
+        .single();
+
+        if (error) {
+          throw error;
+        } else {
+          console.log("fetched profile role:", data.role);
+          setProfileType(data.role);
+        }
+
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      })
+    }
+  }
+
   // program starts here
   // Show loading while checking auth state
   if (loading) {
@@ -87,16 +113,16 @@ const Index = () => {
 
   // Show auth flow if not authenticated and showAuth is true
   console.log("showAuth:", showAuth, "user:", user);
-  if (!user || showAuth) {
+  if (!user && showAuth) {
     return <AuthFlow onComplete={handleAuthComplete} />;
   }
 
   // Show profile selector if authenticated but no profile type selected
   console.log("userProfile:", userProfile, "profileType:", profileType);
  // if (userProfile && !profileType) {
-  if (!profileType) {
-    console.log("showing profile selector");
-    return <ProfileSelector onProfileSelect={handleProfileSelect} onBack={handleBackToAuth} />;
+  if (!profileType && user) {
+    handleProfilefetch();
+    //return <ProfileSelector onProfileSelect={handleProfileSelect} onBack={handleBackToAuth} />;
   }
 
   // Show caregiver dashboard initially for caregivers
@@ -144,8 +170,7 @@ const Index = () => {
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'home':
-        return <NotFound />;
-       // return <WarriorHomePage profileType={profileType} activeTab={activeTab} onTabChange={setActiveTab} />;
+        return <WarriorHomePage profileType={profileType} activeTab={activeTab} onTabChange={setActiveTab} />;
       case 'calendar':
         return <WarriorCalendarPage />;
       case 'ask-cella':

@@ -45,7 +45,7 @@ const RiskIndicator = ({ level }: RiskIndicatorProps) => {
             <Icon className={`w-6 h-6 ${config.color}`} />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-900">Crisis Risk: {config.title}</h3>
+            <h3 className="font-semibold text-foreground">Crisis Risk: {config.title}</h3>
             <p className="text-sm text-cella-grey">{config.message}</p>
           </div>
         </div>
