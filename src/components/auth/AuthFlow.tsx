@@ -19,6 +19,7 @@ const AuthFlow = ({ onComplete }: AuthFlowProps) => {
   const [email, setEmail] = useState("");
   const [profile, setProfile] = useState<any>(null);
   const [isLogin, setIsLogin] = useState(false);
+  const [isUser, setIsUser] = useState(true);
 
   const { user } = useAuth();
 
@@ -122,7 +123,7 @@ const AuthFlow = ({ onComplete }: AuthFlowProps) => {
 
   if (step === "email") {
 
-    if (user) {
+    if (isUser && user) {
       setEmail(user.email || "");
       setStep("profile");
       console.log("user exists, moving to profile step");
@@ -155,7 +156,7 @@ const AuthFlow = ({ onComplete }: AuthFlowProps) => {
       <VerificationStep
         email={email}
         onNext={handleVerificationNext}
-        onBack={() => setStep("email")}
+        onBack={() => {console.log("setting step to email");setIsUser(false);setStep("email")}}
         isLogin={isLogin}
       />
     );
