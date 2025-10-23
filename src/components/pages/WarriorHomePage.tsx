@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, Heart, Droplet, Pill, Utensils, CloudSun, Trophy, ArrowRight, Target, Calendar, Activity, TrendingUp, Shield, Clock } from "lucide-react";
+import { Bell, Heart, Droplet, Pill, Utensils, CloudSun, Trophy, ArrowRight, Target, Calendar, Activity, TrendingUp, Shield, Clock, RotateCcw, Plus, Minus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -10,6 +10,9 @@ import SOSButton from "@/components/SOSButton";
 import BottomNavigation from "@/components/BottomNavigation";
 import { useWarriorData } from "@/hooks/useWarriorData";
 import { useAuth } from "@/hooks/useAuth";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface WarriorHomePageProps {
   profileType: 'patient' | 'caregiver';
@@ -18,20 +21,178 @@ interface WarriorHomePageProps {
 }
 
 const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePageProps) => {
+  const { user } = useAuth();
+  const userId = user?.id || "";
+  const { data, isLoading } = useWarriorData(userId);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
   const [riskLevel] = useState<'low' | 'moderate' | 'high'>('low');
-  
+
+  // Update hydration mutation
+  const updateHydrationMutation = useMutation({
+    mutationFn: async (increment: boolean) => {
+      const today = new Date().toISOString().split('T')[0];
+      const current = hydration?.glasses_drank || 0;
+      const newValue = increment ? current + 1 : Math.max(0, current - 1);
+
+      await supabase
+        .from('hydration_logs')
+        .upsert({
+          user_id: userId,
+          date: today,
+          glasses_drank: newValue,
+          target_glasses: hydration?.target_glasses || 8
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['hydration_logs', userId] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Update failed",
+        description: "Failed to update water intake. Please try again.",
+        variant: "destructive",
+      });
+      console.error('Hydration update error:', error);
+    },
+  });
+
+  // Update medication mutation
+  const updateMedicationMutation = useMutation({
+    mutationFn: async (increment: boolean) => {
+      const today = new Date().toISOString().split('T')[0];
+      const current = meds?.doses_taken || 0;
+      const newValue = increment ? current + 1 : Math.max(0, current - 1);
+
+      await supabase
+        .from('medication_logs')
+        .upsert({
+          user_id: userId,
+          date: today,
+          doses_taken: newValue,
+          target_doses: meds?.target_doses || 3
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['medication_logs', userId] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Update failed",
+        description: "Failed to update medication intake. Please try again.",
+        variant: "destructive",
+      });
+      console.error('Medication update error:', error);
+    },
+  });
+
+  // Update meals mutation
+  const updateMealsMutation = useMutation({
+    mutationFn: async (increment: boolean) => {
+      const today = new Date().toISOString().split('T')[0];
+      const current = meals?.meals_eaten || 0;
+      const newValue = increment ? current + 1 : Math.max(0, current - 1);
+
+      await supabase
+        .from('meals')
+        .upsert({
+          user_id: userId,
+          date: today,
+          meals_eaten: newValue,
+          target_meals: meals?.target_meals || 3
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['meals', userId] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Update failed",
+        description: "Failed to update meals. Please try again.",
+        variant: "destructive",
+      });
+      console.error('Meals update error:', error);
+    },
+  });
+
+  // Reset daily logs mutation
+  const resetLogsMutation = useMutation({
+    mutationFn: async () => {
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
+      // Reset hydration logs
+      await supabase
+        .from('hydration_logs')
+        .update({ glasses_drank: 0 })
+        .eq('user_id', userId)
+        .eq('date', today);
+
+      // Reset medication logs
+      await supabase
+        .from('medication_logs')
+        .update({ doses_taken: 0 })
+        .eq('user_id', userId)
+        .eq('date', today);
+
+      // Reset meals
+      await supabase
+        .from('meals')
+        .update({ meals_eaten: 0 })
+        .eq('user_id', userId)
+        .eq('date', today);
+    },
+    onSuccess: () => {
+      // Invalidate and refetch queries
+      queryClient.invalidateQueries({ queryKey: ['hydration_logs', userId] });
+      queryClient.invalidateQueries({ queryKey: ['medication_logs', userId] });
+      queryClient.invalidateQueries({ queryKey: ['meals', userId] });
+
+      toast({
+        title: "Daily logs reset",
+        description: "All daily health logs have been reset to zero for a fresh start.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Reset failed",
+        description: "Failed to reset daily logs. Please try again.",
+        variant: "destructive",
+      });
+      console.error('Reset logs error:', error);
+    },
+  });
+
   const currentHour = new Date().getHours();
   const greeting = currentHour < 12 ? 'Good morning' : currentHour < 18 ? 'Good afternoon' : 'Good evening';
 
   const avatarImage = "/lovable-uploads/c59e64c1-b31d-4b6c-9512-be81ef112725.png";
 
-  // Mock data for impressive stats
+  // Extract data from the hook
+  const hydration = data?.hydration_logs?.[0];
+  const meals = data?.meals?.[0];
+  const meds = data?.medication_logs?.[0];
+  const profile = data?.profiles?.[0];
+
+  // Calculate today's stats from live data
   const todayStats = {
-    hydration: { current: 5, target: 8, percentage: 62.5 },
-    medications: { current: 2, target: 3, percentage: 66.7 },
-    meals: { current: 2, target: 3, percentage: 66.7 },
-    mood: 8.5,
-    streakDays: 12
+    hydration: {
+      current: hydration?.glasses_drank || 0,
+      target: hydration?.target_glasses || 8,
+      percentage: hydration ? (hydration.glasses_drank / hydration.target_glasses) * 100 : 0
+    },
+    medications: {
+      current: meds?.doses_taken || 0,
+      target: meds?.target_doses || 3,
+      percentage: meds ? (meds.doses_taken / meds.target_doses) * 100 : 0
+    },
+    meals: {
+      current: meals?.meals_eaten || 0,
+      target: meals?.target_meals || 3,
+      percentage: meals ? (meals.meals_eaten / meals.target_meals) * 100 : 0
+    },
+    mood: 8.5, // This might need to be fetched from a mood table if available
+    streakDays: 12 // This might need calculation from logs
   };
 
   const quickActions = [
@@ -77,29 +238,21 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
     }
   ];
 
-//   const { user } = useAuth();
-//   const userId = user?.id || "";
-//   const { data, isLoading } = useWarriorData(userId);
-
-//   if (isLoading) return <div>Loading...</div>;
-
-//   const hydration = data?.hydration_logs?.[0];
-//   const meals = data?.meals?.[0];
-//   const meds = data?.medication_logs?.[0];
-//   const profile = data?.profiles?.[0];
-
-//   return (
-//     <div className="p-4">
-//       <h1>Welcome, {profile?.name}</h1>
-//       <p>Hydration: {hydration?.glasses_drank}/{hydration?.target_glasses}</p>
-//       <p>Meals: {meals?.meals_eaten}/{meals?.target_meals}</p>
-//       <p>Medications: {meds?.doses_taken}/{meds?.target_doses}</p>
-//     </div>
-//   );
-// }
 
 
 
+
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-red mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your warrior dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
@@ -234,19 +387,69 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
                   <div className={`bg-gradient-to-br ${action.bgGradient} rounded-2xl p-4 mb-4 group-hover:scale-105 transition-transform`}>
                     <action.icon className={`w-8 h-8 ${action.iconColor} mx-auto`} />
                   </div>
-                  
+
                   <h3 className="font-semibold text-foreground mb-2 text-center">{action.title}</h3>
                   <p className="text-sm text-gray-600 text-center mb-3">{action.value}</p>
-                  
+
                   {action.progress && (
                     <div className="space-y-2">
                       <Progress value={action.progress} className="h-2" />
                       <p className="text-xs text-foreground text-center">{Math.round(action.progress)}% complete</p>
                     </div>
                   )}
-                  
+
                   {action.subtitle && (
                     <p className="text-xs text-gray-500 text-center mt-2">{action.subtitle}</p>
+                  )}
+
+                  {/* Action Buttons for hydration, medications, and nutrition */}
+                  {(action.id === 'hydration' || action.id === 'medications' || action.id === 'nutrition') && (
+                    <div className="flex items-center justify-center gap-2 mt-4">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (action.id === 'hydration') {
+                            updateHydrationMutation.mutate(false);
+                          } else if (action.id === 'medications') {
+                            updateMedicationMutation.mutate(false);
+                          } else if (action.id === 'nutrition') {
+                            updateMealsMutation.mutate(false);
+                          }
+                        }}
+                        disabled={
+                          (action.id === 'hydration' && updateHydrationMutation.isPending) ||
+                          (action.id === 'medications' && updateMedicationMutation.isPending) ||
+                          (action.id === 'nutrition' && updateMealsMutation.isPending)
+                        }
+                        className="h-8 w-8 p-0 border-gray-300 hover:border-red-400 hover:bg-red-50"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (action.id === 'hydration') {
+                            updateHydrationMutation.mutate(true);
+                          } else if (action.id === 'medications') {
+                            updateMedicationMutation.mutate(true);
+                          } else if (action.id === 'nutrition') {
+                            updateMealsMutation.mutate(true);
+                          }
+                        }}
+                        disabled={
+                          (action.id === 'hydration' && updateHydrationMutation.isPending) ||
+                          (action.id === 'medications' && updateMedicationMutation.isPending) ||
+                          (action.id === 'nutrition' && updateMealsMutation.isPending)
+                        }
+                        className="h-8 w-8 p-0 bg-brand-red hover:bg-red-600 text-white"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
                   )}
                 </CardContent>
               </Card>
@@ -279,6 +482,20 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
             </div>
           </CardContent>
         </Card>
+
+        {/* Reset Button */}
+        <div className="w-full flex justify-center bg-red">
+          <Button
+            onClick={() => resetLogsMutation.mutate()}
+            disabled={resetLogsMutation.isPending}
+            variant="outline"
+            size="lg"
+            className="bg-white/80 backdrop-blur-sm border-2 border-gray-200 hover:border-brand-red hover:bg-brand-red/5 transition-all duration-300 shadow-lg"
+          >
+            <RotateCcw className="w-5 h-5 mr-2" />
+            {resetLogsMutation.isPending ? 'Resetting...' : 'Reset Daily Logs'}
+          </Button>
+        </div>
 
         {/* SOS Button */}
         <div className="w-full">

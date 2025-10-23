@@ -1,22 +1,10 @@
-# Task: Implement Email/Password Sign-In Flow
+# WarriorHomePage Live Data Integration TODO
 
-## Completed
-- [x] Analyzed current auth flow and components
-- [x] Added signInWithPassword method to useAuth hook
-- [x] Created PasswordStep component for sign-in
-- [x] Updated AuthFlow to handle sign-in mode (EmailStep → PasswordStep → Success)
-- [x] Modified EmailStep to handle both signup and signin modes
-- [x] Updated AuthFlow step progression for sign-in
-
-## Completed
-- [x] Analyzed current auth flow and components
-- [x] Added signInWithPassword method to useAuth hook
-- [x] Created PasswordStep component for sign-in
-- [x] Updated AuthFlow to handle sign-in mode (EmailStep → PasswordStep → Success)
-- [x] Modified EmailStep to handle both signup and signin modes
-- [x] Updated AuthFlow step progression for sign-in
-- [x] Removed demo code from auth flow
-- [x] Added toggle between login and signup modes
-
-## Pending Tasks
-- [ ] Test the complete sign-in flow
+- [x] Uncomment and integrate useWarriorData hook in WarriorHomePage.tsx
+- [x] Replace mock todayStats with data from useWarriorData hook
+- [x] Add loading state handling while data is fetching
+- [x] Update UI elements to display real data (hydration, medications, meals, profile name)
+- [x] Update risk level based on fetched data if available
+- [x] Test the page to verify data loads correctly
+- [x] Add reset button to reset daily logs to zero
+- [x] Add increment/decrement buttons for water intake, medications, and nutrition tracking
