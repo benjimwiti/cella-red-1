@@ -4,7 +4,7 @@ CREATE TABLE public.profiles (
   id UUID NOT NULL REFERENCES auth.users ON DELETE CASCADE,
   email TEXT,
   name TEXT,
-  role TEXT DEFAULT 'warrior',
+  role TEXT DEFAULT TEXT,
   gender TEXT,
   date_of_birth DATE,
   region TEXT,

@@ -37,6 +37,15 @@ const Index = () => {
     }
   }, [searchParams]);
 
+
+
+  useEffect(() => {
+    if (user && !profileType) {
+      handleProfilefetch();
+    }
+  }, [user, profileType]);
+
+
   const handleAuthComplete = (profile: any) => {
     setUserProfile(profile);
     setShowAuth(false);
@@ -74,29 +83,40 @@ const Index = () => {
     setShowAuth(true);
   };
 
-  const handleProfilefetch = async ()=> {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id) // assuming the 'profiles' table links to the 'user' via 'id'
-        .single();
+const handleProfilefetch = async () => {
+  if (!user?.id) return; // sanity check — don’t query without user
 
-        if (error) {
-          throw error;
-        } else {
-          console.log("fetched profile role:", data.role);
-          setProfileType(data.role);
-        }
+  try {
+    console.log("Fetching profile for:", user.id);
+    const { data, error, status } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
 
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      })
+    // Case 1: profile not found
+    if (status === 406 || data === null) {
+      console.log("No profile found for user, prompting selection...");
+      setProfileType(null);
+      setShowAuth(true); // still authenticated, just no profile yet
+      return;
     }
+
+    // Case 2: found successfully
+    if (error) throw error;
+    console.log("Fetched profile role:", data.role);
+    setProfileType(data.role);
+
+  } catch (error: any) {
+    console.error("Profile fetch error:", error.message);
+    toast({
+      title: "Error fetching profile",
+      description: error.message,
+      variant: "destructive",
+    });
   }
+};
+
 
   // program starts here
   // Show loading while checking auth state
@@ -113,20 +133,14 @@ const Index = () => {
 
   // Show auth flow if not authenticated and showAuth is true
   console.log("showAuth:", showAuth, "user:", user);
-  if (user) {
-    setShowAuth(false);
-  }
+ 
   if (!user || showAuth) {
     return <AuthFlow onComplete={handleAuthComplete} />;
   }
 
   // Show profile selector if authenticated but no profile type selected
   console.log("userProfile:", userProfile, "profileType:", profileType);
- // if (userProfile && !profileType) {
-  if (!profileType && user) {
-    handleProfilefetch();
-    //return <ProfileSelector onProfileSelect={handleProfileSelect} onBack={handleBackToAuth} />;
-  }
+
 
   // Show caregiver dashboard initially for caregivers
   if (showCaregiverDashboard) {
