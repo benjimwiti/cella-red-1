@@ -113,7 +113,10 @@ const Index = () => {
 
   // Show auth flow if not authenticated and showAuth is true
   console.log("showAuth:", showAuth, "user:", user);
-  if (!user && showAuth) {
+  if (user) {
+    setShowAuth(false);
+  }
+  if (!user || showAuth) {
     return <AuthFlow onComplete={handleAuthComplete} />;
   }
 
