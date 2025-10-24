@@ -6,6 +6,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/types/supabase";
 import { useQuery, useMutation, useQueryClient, UseQueryResult } from "@tanstack/react-query";
+import { toast } from "../hooks/use-toast.ts";
 
 /* ------------------------------------------------------------------
   // region: NOTES & INSTRUCTIONS
@@ -389,6 +390,14 @@ export function useMedicationIncrementMutation() {
       onSuccess: (_data, variables) => {
         queryClient.invalidateQueries({ queryKey: ["medication_logs", variables.userId] });
       },
+      onError: (error) => {
+        toast({
+          title: "Update failed",
+          description: "Failed to update water intake. Please try again.",
+          variant: "destructive",
+        });
+      console.error('Hydration update error:', error);
+    },
     }
   );
 }

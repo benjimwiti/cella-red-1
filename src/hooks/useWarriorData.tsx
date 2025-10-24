@@ -26,18 +26,18 @@ export function useWarriorData(userId: string) {
   const data = Object.fromEntries(
     results.map((q, i) => [
       [
-        "appointments",
-        "chat_logs",
-        "circle_invites",
-        "circle_members",
-        "circles",
-        "crisis_logs",
+        //"appointments",
+        //"chat_logs",
+        //"circle_invites",
+        //"circle_members",
+        //"circles",
+        //"crisis_logs",
         "hydration_logs",
         "meals",
-        "medication_logs",
+        //"medication_logs",
         "medications",
         "profiles",
-        "weather_logs",
+        //"weather_logs",
       ][i],
       q.data,
     ])

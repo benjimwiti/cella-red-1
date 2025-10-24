@@ -33,17 +33,20 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
   const updateHydrationMutation = useMutation({
     mutationFn: async (increment: boolean) => {
       const today = new Date().toISOString().split('T')[0];
-      const current = hydration?.glasses_drank || 0;
+      const current = hydration?.glasses_consumed || 0;
       const newValue = increment ? current + 1 : Math.max(0, current - 1);
 
-      await supabase
+      const {data, error} = await supabase
         .from('hydration_logs')
         .upsert({
           user_id: userId,
           date: today,
-          glasses_drank: newValue,
-          target_glasses: hydration?.target_glasses || 8
-        });
+          glasses_consumed: newValue,
+          goal_glasses: hydration?.goal_glasses || 8
+        })
+        .select();
+
+        if (error) console.error('Hydration upsert error:', error);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hydration_logs', userId] });
@@ -124,7 +127,7 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
       // Reset hydration logs
       await supabase
         .from('hydration_logs')
-        .update({ glasses_drank: 0 })
+        .update({ glasses_consumed: 0 })
         .eq('user_id', userId)
         .eq('date', today);
 
@@ -177,9 +180,9 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
   // Calculate today's stats from live data
   const todayStats = {
     hydration: {
-      current: hydration?.glasses_drank || 0,
-      target: hydration?.target_glasses || 8,
-      percentage: hydration ? (hydration.glasses_drank / hydration.target_glasses) * 100 : 0
+      current: hydration?.glasses_consumed || 0,
+      target: hydration?.goal_glasses || 8,
+      percentage: hydration ? (hydration.glasses_consumed / hydration.goal_glasses) * 100 : 0
     },
     medications: {
       current: meds?.doses_taken || 0,
@@ -194,6 +197,7 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
     mood: 8.5, // This might need to be fetched from a mood table if available
     streakDays: 12 // This might need calculation from logs
   };
+  console.log(data);
 
   const quickActions = [
     { 

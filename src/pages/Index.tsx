@@ -106,6 +106,7 @@ const handleProfilefetch = async () => {
     if (error) throw error;
     console.log("Fetched profile role:", data.role);
     setProfileType(data.role);
+    setShowAuth(false);
 
   } catch (error: any) {
     console.error("Profile fetch error:", error.message);
