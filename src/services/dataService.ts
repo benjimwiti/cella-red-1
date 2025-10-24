@@ -75,18 +75,25 @@ export async function createItem(table: string, payload: any) {
   }
 }
 
-export async function upsertItem(table: string, payload: any, onConflict?: string | string[]) {
-  // Supabase upsert will use primary key or constraints to deduplicate.
-  // Provide `onConflict` if you want to specify a unique key (e.g., ['user_id', 'date'])
+export async function upsertItem(
+  table: string,
+  payload: any,
+  onConflict?: string | string[]
+) {
   try {
-    const query = supabase.from(table).upsert(payload);
-    if (onConflict) (query as any).onConflict(onConflict);
-    const { data, error } = await (query as any).select();
+    const query = supabase
+      .from(table)
+      .upsert(payload, onConflict ? { onConflict } : undefined)
+      .select();
+
+    const { data, error } = await query;
     return { data, error };
   } catch (error) {
+    console.error("Upsert error:", error);
     return { data: null, error };
   }
 }
+
 
 export async function updateItem(table: string, idOrFilter: any, payload: any) {
   try {
@@ -136,7 +143,7 @@ export async function resetDailyLogsForUser(userId: string, dateStr?: string) {
     // Hydration
     await supabase
       .from("hydration_logs")
-      .update({ glasses_drank: 0 })
+      .update({ glasses_consumed: 0 })
       .eq("user_id", userId)
       .eq("date", date);
 
@@ -289,7 +296,7 @@ export function useDelete(table: string) {
  *
  * Example usage:
  * const upsertHydration = useDailyLogUpsert('hydration_logs');
- * upsertHydration.mutate({ user_id, date: '2025-10-22', glasses_drank: 3, target_glasses: 8 });
+ * upsertHydration.mutate({ user_id, date: '2025-10-22', glasses_consumed: 3, goal_glasses: 8 });
  */
 export function useDailyLogUpsert(table: string) {
   // default onConflict is ['user_id', 'date'] for daily logs
@@ -343,89 +350,183 @@ export function useResetDailyLogs() {
  * (payload.current), this function will use it to compute the new value. Otherwise it simply
  * upserts the passed new value.
  */
-export function useHydrationIncrementMutation() {
+export const useHydrationIncrementMutation = () => {
   const queryClient = useQueryClient();
-  return useMutation(
-    async ({ userId, increment, current, target }: { userId: string; increment: boolean; current?: number; target?: number }) => {
-      const today = new Date().toISOString().split("T")[0];
-      const currentVal = typeof current === "number" ? current : 0;
-      const newValue = increment ? currentVal + 1 : Math.max(0, currentVal - 1);
-      const payload = {
-        user_id: userId,
-        date: today,
-        glasses_drank: newValue,
-        target_glasses: target ?? 8,
-      };
-      // upsert on unique (user_id, date)
-      const { data, error } = await upsertItem("hydration_logs", payload, ["user_id", "date"]);
-      if (error) throw error;
-      return data;
-    },
-    {
-      onSuccess: (_data, variables) => {
-        queryClient.invalidateQueries({ queryKey: ["hydration_logs", variables.userId] });
-      },
-    }
-  );
+  // const { toast } = useToast();
+
+  // Local (scoped) type definitions
+  type Vars = {
+    userId: string;
+    increment: boolean;
+    current?: number;
+    target?: number;
+  };
+
+  type Data = any; // Replace later with your actual Supabase hydration log type
+
+  const mutateHydration = async ({
+    userId,
+    increment,
+    current,
+    target,
+  }: Vars): Promise<Data> => {
+    const today = new Date().toISOString().split("T")[0];
+    const currentVal = typeof current === "number" ? current : 0;
+    const newValue = increment ? currentVal + 1 : Math.max(0, currentVal - 1);
+
+    const payload = {
+      user_id: userId,
+      date: today,
+      glasses_consumed: newValue,
+      goal_glasses: target ?? 8,
+    };
+
+    const { data, error } = await upsertItem("hydration_logs", payload, ["user_id", "date"]);
+    if (error) throw error;
+    return data;
+  };
+
+  // You can define handlers separately for clarity (next question)
+  const handleSuccess = (_data: Data, variables: Vars) => {
+    queryClient.invalidateQueries({ queryKey: ["hydration_logs", variables.userId] });
+  };
+
+  const handleError = (error: Error) => {
+    toast({
+      title: "Update failed",
+      description: "Failed to update hydration log. Please try again.",
+      variant: "destructive",
+    });
+    console.error("Medication update error:", error);
+  }
+
+  return useMutation<Data, Error, Vars>({
+    mutationFn: mutateHydration,
+    onSuccess: handleSuccess,
+    onError: handleError
+  });
 }
+
 
 export function useMedicationIncrementMutation() {
   const queryClient = useQueryClient();
-  return useMutation(
-    async ({ userId, increment, current, target }: { userId: string; increment: boolean; current?: number; target?: number }) => {
-      const today = new Date().toISOString().split("T")[0];
-      const currentVal = typeof current === "number" ? current : 0;
-      const newValue = increment ? currentVal + 1 : Math.max(0, currentVal - 1);
-      const payload = {
-        user_id: userId,
-        date: today,
-        doses_taken: newValue,
-        target_doses: target ?? 3,
-      };
-      const { data, error } = await upsertItem("medication_logs", payload, ["user_id", "date"]);
-      if (error) throw error;
-      return data;
-    },
-    {
-      onSuccess: (_data, variables) => {
-        queryClient.invalidateQueries({ queryKey: ["medication_logs", variables.userId] });
-      },
-      onError: (error) => {
-        toast({
-          title: "Update failed",
-          description: "Failed to update water intake. Please try again.",
-          variant: "destructive",
-        });
-      console.error('Hydration update error:', error);
-    },
-    }
-  );
+  // const { toast } = useToast();
+
+  // Local types
+  type Vars = {
+    userId: string;
+    increment: boolean;
+    current?: number;
+    target?: number;
+  };
+
+  type Data = any; // Replace later with your Supabase medication log type
+
+  // Core mutation logic
+  const mutateMedication = async ({
+    userId,
+    increment,
+    current,
+    target,
+  }: Vars): Promise<Data> => {
+    const today = new Date().toISOString().split("T")[0];
+    const currentVal = typeof current === "number" ? current : 0;
+    const newValue = increment ? currentVal + 1 : Math.max(0, currentVal - 1);
+
+    const payload = {
+      user_id: userId,
+      date: today,
+      doses_taken: newValue,
+      target_doses: target ?? 3,
+    };
+
+    const { data, error } = await upsertItem("medication_logs", payload, ["user_id", "date"]);
+    if (error) throw error;
+    return data;
+  };
+
+  // Success handler
+  const handleSuccess = (_data: Data, variables: Vars) => {
+    queryClient.invalidateQueries({ queryKey: ["medication_logs", variables.userId] });
+  };
+
+  // Error handler
+  const handleError = (error: Error) => {
+    toast({
+      title: "Update failed",
+      description: "Failed to update medication log. Please try again.",
+      variant: "destructive",
+    });
+    console.error("Medication update error:", error);
+  };
+
+  // Return the mutation hook
+  return useMutation<Data, Error, Vars>({
+    mutationFn: mutateMedication,
+    onSuccess: handleSuccess,
+    onError: handleError,
+  });
 }
 
 export function useMealsIncrementMutation() {
   const queryClient = useQueryClient();
-  return useMutation(
-    async ({ userId, increment, current, target }: { userId: string; increment: boolean; current?: number; target?: number }) => {
-      const today = new Date().toISOString().split("T")[0];
-      const currentVal = typeof current === "number" ? current : 0;
-      const newValue = increment ? currentVal + 1 : Math.max(0, currentVal - 1);
-      const payload = {
-        user_id: userId,
-        date: today,
-        meals_eaten: newValue,
-        target_meals: target ?? 3,
-      };
-      const { data, error } = await upsertItem("meals", payload, ["user_id", "date"]);
-      if (error) throw error;
-      return data;
-    },
-    {
-      onSuccess: (_data, variables) => {
-        queryClient.invalidateQueries({ queryKey: ["meals", variables.userId] });
-      },
-    }
-  );
+  // const { toast } = useToast();
+
+  // Local types
+  type Vars = {
+    userId: string;
+    increment: boolean;
+    current?: number;
+    target?: number;
+  };
+
+  type Data = any; // Replace later with your Supabase meals log type
+
+  // Core mutation logic
+  const mutateMeals = async ({
+    userId,
+    increment,
+    current,
+    target,
+  }: Vars): Promise<Data> => {
+    const today = new Date().toISOString().split("T")[0];
+    const currentVal = typeof current === "number" ? current : 0;
+    const newValue = increment ? currentVal + 1 : Math.max(0, currentVal - 1);
+
+    const payload = {
+      user_id: userId,
+      date: today,
+      meals_eaten: newValue,
+      target_meals: target ?? 3,
+    };
+
+    const { data, error } = await upsertItem("meals", payload, ["user_id", "date"]);
+    if (error) throw error;
+    return data;
+  };
+
+  // Success handler
+  const handleSuccess = (_data: Data, variables: Vars) => {
+    queryClient.invalidateQueries({ queryKey: ["meals", variables.userId] });
+  };
+
+  const handleError = (error: Error) => {
+    toast({
+      title: "Update failed",
+      description: "Failed to update meals log. Please try again.",
+      variant: "destructive",
+    });
+    console.error("Medication update error:", error);
+  }
+
+  // Return the mutation hook
+  return useMutation<Data, Error, Vars>({
+    mutationFn: mutateMeals,
+    onSuccess: handleSuccess,
+    onError: handleError,
+  });
 }
+
 
 /* ------------------------------------------------------------------
   // region: Usage Examples & Implementation Tips (copy into components)
@@ -444,10 +545,10 @@ const { data: profiles, isLoading, isError } = useFetchTable('profiles', { userI
 const updateHydration = useHydrationIncrementMutation();
 
 // to increment:
-updateHydration.mutate({ userId, increment: true, current: hydration?.glasses_drank, target: hydration?.target_glasses });
+updateHydration.mutate({ userId, increment: true, current: hydration?.glasses_consumed, target: hydration?.goal_glasses });
 
 // to decrement:
-updateHydration.mutate({ userId, increment: false, current: hydration?.glasses_drank });
+updateHydration.mutate({ userId, increment: false, current: hydration?.glasses_consumed });
 
 3) Reset daily logs (copy/paste from your Reset button handler):
 
@@ -481,7 +582,7 @@ deleteProfile.mutate(profileId); // or { id: profileId }
 7) TypeScript / Types:
 
 - Add interfaces like:
-  interface HydrationLog { id?: number; user_id: string; date: string; glasses_drank: number; target_glasses?: number; }
+  interface HydrationLog { id?: number; user_id: string; date: string; glasses_consumed: number; goal_glasses?: number; }
   Then replace `any` with explicit types in the exported functions & hooks.
 
 */

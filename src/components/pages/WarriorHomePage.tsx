@@ -13,6 +13,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useHydrationIncrementMutation } from "../../services/dataService.ts";
+import { useMedicationIncrementMutation } from "../../services/dataService.ts";
+import { useMealsIncrementMutation } from "../../services/dataService.ts";
 
 interface WarriorHomePageProps {
   profileType: 'patient' | 'caregiver';
@@ -29,95 +32,136 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
 
   const [riskLevel] = useState<'low' | 'moderate' | 'high'>('low');
 
-  // Update hydration mutation
-  const updateHydrationMutation = useMutation({
-    mutationFn: async (increment: boolean) => {
-      const today = new Date().toISOString().split('T')[0];
-      const current = hydration?.glasses_consumed || 0;
-      const newValue = increment ? current + 1 : Math.max(0, current - 1);
+  const currentHour = new Date().getHours();
+  const greeting = currentHour < 12 ? 'Good morning' : currentHour < 18 ? 'Good afternoon' : 'Good evening';
 
-      const {data, error} = await supabase
-        .from('hydration_logs')
-        .upsert({
-          user_id: userId,
-          date: today,
-          glasses_consumed: newValue,
-          goal_glasses: hydration?.goal_glasses || 8
-        })
-        .select();
+  const avatarImage = "/lovable-uploads/c59e64c1-b31d-4b6c-9512-be81ef112725.png";
 
-        if (error) console.error('Hydration upsert error:', error);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['hydration_logs', userId] });
-    },
-    onError: (error) => {
-      toast({
-        title: "Update failed",
-        description: "Failed to update water intake. Please try again.",
-        variant: "destructive",
-      });
-      console.error('Hydration update error:', error);
-    },
-  });
+  // Extract data from the hook
+  const hydration = data?.hydration_logs?.[0];
+  const meals = data?.meals?.[0];
+  const meds = data?.medication_logs?.[0];
+  const profile = data?.profiles?.[0];
 
+  //console.log(hydration, meals, meds);
+
+  // Calculate today's stats from live data
+  const todayStats = {
+    hydration: {
+      current: hydration?.glasses_consumed || 0,
+      target: hydration?.goal_glasses || 8,
+      percentage: hydration ? (hydration.glasses_consumed / hydration.goal_glasses) * 100 : 0
+    },
+    medications: {
+      current: meds?.doses_taken || 0,
+      target: meds?.target_doses || 3,
+      percentage: meds ? (meds.doses_taken / meds.target_doses) * 100 : 0
+    },
+    meals: {
+      current: meals?.meals_eaten || 0,
+      target: meals?.target_meals || 3,
+      percentage: meals ? (meals.meals_eaten / meals.target_meals) * 100 : 0
+    },
+    mood: 8.5, // This might need to be fetched from a mood table if available
+    streakDays: 12 // This might need calculation from logs
+  };
+
+  console.log('Today Stats:', todayStats);
+  
+
+  const quickActions = [
+    { 
+      id: 'hydration', 
+      title: 'Water Intake', 
+      icon: Droplet, 
+      value: `${todayStats.hydration.current}/${todayStats.hydration.target} glasses`,
+      progress: todayStats.hydration.percentage,
+      gradient: 'from-blue-500 to-cyan-400',
+      bgGradient: 'from-blue-50 to-cyan-50',
+      iconColor: 'text-blue-600'
+    },
+    { 
+      id: 'medications', 
+      title: 'Medications', 
+      icon: Pill, 
+      value: `${todayStats.medications.current}/${todayStats.medications.target} doses`,
+      progress: todayStats.medications.percentage,
+      gradient: 'from-purple-500 to-pink-400',
+      bgGradient: 'from-purple-50 to-pink-50',
+      iconColor: 'text-purple-600'
+    },
+    { 
+      id: 'nutrition', 
+      title: 'Nutrition', 
+      icon: Utensils, 
+      value: `${todayStats.meals.current}/${todayStats.meals.target} meals`,
+      progress: todayStats.meals.percentage,
+      gradient: 'from-green-500 to-emerald-400',
+      bgGradient: 'from-green-50 to-emerald-50',
+      iconColor: 'text-green-600'
+    },
+    { 
+      id: 'weather', 
+      title: 'Weather Impact', 
+      icon: CloudSun, 
+      value: '72°F',
+      subtitle: 'Low risk today',
+      gradient: 'from-orange-500 to-yellow-400',
+      bgGradient: 'from-orange-50 to-yellow-50',
+      iconColor: 'text-orange-600'
+    }
+  ];
+
+  const hydrationMutation = useHydrationIncrementMutation();
+  const medicationMutation = useMedicationIncrementMutation();
+  const mealsMutation = useMealsIncrementMutation();
+
+  const handleUpdateHyrationMutation = async (increment: boolean) => {
+    const today = new Date().toISOString().split('T')[0];
+    const current = hydration?.glasses_consumed || 0;
+    const newValue = increment ? current + 1 : Math.max(0, current - 1);
+    const target = hydration?.goal_glasses || 8;
+    hydrationMutation.mutate({
+      userId, 
+      increment, 
+      current, 
+      target
+    });
+  }
+
+  
   // Update medication mutation
-  const updateMedicationMutation = useMutation({
-    mutationFn: async (increment: boolean) => {
-      const today = new Date().toISOString().split('T')[0];
-      const current = meds?.doses_taken || 0;
-      const newValue = increment ? current + 1 : Math.max(0, current - 1);
 
-      await supabase
-        .from('medication_logs')
-        .upsert({
-          user_id: userId,
-          date: today,
-          doses_taken: newValue,
-          target_doses: meds?.target_doses || 3
-        });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['medication_logs', userId] });
-    },
-    onError: (error) => {
-      toast({
-        title: "Update failed",
-        description: "Failed to update medication intake. Please try again.",
-        variant: "destructive",
-      });
-      console.error('Medication update error:', error);
-    },
+const handleUpdateMedicationMutation = async (increment: boolean) => {
+  const today = new Date().toISOString().split("T")[0];
+  const current = meds?.doses_taken || 0;
+  const newValue = increment ? current + 1 : Math.max(0, current - 1);
+  const target = meds?.target_doses || 3;
+
+  medicationMutation.mutate({
+    userId,
+    increment,
+    current,
+    target,
   });
+};
 
-  // Update meals mutation
-  const updateMealsMutation = useMutation({
-    mutationFn: async (increment: boolean) => {
-      const today = new Date().toISOString().split('T')[0];
-      const current = meals?.meals_eaten || 0;
-      const newValue = increment ? current + 1 : Math.max(0, current - 1);
 
-      await supabase
-        .from('meals')
-        .upsert({
-          user_id: userId,
-          date: today,
-          meals_eaten: newValue,
-          target_meals: meals?.target_meals || 3
-        });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['meals', userId] });
-    },
-    onError: (error) => {
-      toast({
-        title: "Update failed",
-        description: "Failed to update meals. Please try again.",
-        variant: "destructive",
-      });
-      console.error('Meals update error:', error);
-    },
+
+const handleUpdateMealsMutation = async (increment: boolean) => {
+  const today = new Date().toISOString().split("T")[0];
+  const current = meals?.meals_eaten || 0;
+  const newValue = increment ? current + 1 : Math.max(0, current - 1);
+  const target = meals?.target_meals || 3;
+
+  mealsMutation.mutate({
+    userId,
+    increment,
+    current,
+    target,
   });
+};
+
 
   // Reset daily logs mutation
   const resetLogsMutation = useMutation({
@@ -166,81 +210,7 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
     },
   });
 
-  const currentHour = new Date().getHours();
-  const greeting = currentHour < 12 ? 'Good morning' : currentHour < 18 ? 'Good afternoon' : 'Good evening';
-
-  const avatarImage = "/lovable-uploads/c59e64c1-b31d-4b6c-9512-be81ef112725.png";
-
-  // Extract data from the hook
-  const hydration = data?.hydration_logs?.[0];
-  const meals = data?.meals?.[0];
-  const meds = data?.medication_logs?.[0];
-  const profile = data?.profiles?.[0];
-
-  // Calculate today's stats from live data
-  const todayStats = {
-    hydration: {
-      current: hydration?.glasses_consumed || 0,
-      target: hydration?.goal_glasses || 8,
-      percentage: hydration ? (hydration.glasses_consumed / hydration.goal_glasses) * 100 : 0
-    },
-    medications: {
-      current: meds?.doses_taken || 0,
-      target: meds?.target_doses || 3,
-      percentage: meds ? (meds.doses_taken / meds.target_doses) * 100 : 0
-    },
-    meals: {
-      current: meals?.meals_eaten || 0,
-      target: meals?.target_meals || 3,
-      percentage: meals ? (meals.meals_eaten / meals.target_meals) * 100 : 0
-    },
-    mood: 8.5, // This might need to be fetched from a mood table if available
-    streakDays: 12 // This might need calculation from logs
-  };
-  console.log(data);
-
-  const quickActions = [
-    { 
-      id: 'hydration', 
-      title: 'Water Intake', 
-      icon: Droplet, 
-      value: `${todayStats.hydration.current}/${todayStats.hydration.target} glasses`,
-      progress: todayStats.hydration.percentage,
-      gradient: 'from-blue-500 to-cyan-400',
-      bgGradient: 'from-blue-50 to-cyan-50',
-      iconColor: 'text-blue-600'
-    },
-    { 
-      id: 'medications', 
-      title: 'Medications', 
-      icon: Pill, 
-      value: `${todayStats.medications.current}/${todayStats.medications.target} doses`,
-      progress: todayStats.medications.percentage,
-      gradient: 'from-purple-500 to-pink-400',
-      bgGradient: 'from-purple-50 to-pink-50',
-      iconColor: 'text-purple-600'
-    },
-    { 
-      id: 'nutrition', 
-      title: 'Nutrition', 
-      icon: Utensils, 
-      value: `${todayStats.meals.current}/${todayStats.meals.target} meals`,
-      progress: todayStats.meals.percentage,
-      gradient: 'from-green-500 to-emerald-400',
-      bgGradient: 'from-green-50 to-emerald-50',
-      iconColor: 'text-green-600'
-    },
-    { 
-      id: 'weather', 
-      title: 'Weather Impact', 
-      icon: CloudSun, 
-      value: '72°F',
-      subtitle: 'Low risk today',
-      gradient: 'from-orange-500 to-yellow-400',
-      bgGradient: 'from-orange-50 to-yellow-50',
-      iconColor: 'text-orange-600'
-    }
-  ];
+ 
 
 
 
@@ -415,17 +385,17 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
                         onClick={(e) => {
                           e.stopPropagation();
                           if (action.id === 'hydration') {
-                            updateHydrationMutation.mutate(false);
+                            handleUpdateHyrationMutation(false);
                           } else if (action.id === 'medications') {
-                            updateMedicationMutation.mutate(false);
+                            handleUpdateMedicationMutation(false);
                           } else if (action.id === 'nutrition') {
-                            updateMealsMutation.mutate(false);
+                            handleUpdateMealsMutation(false);
                           }
                         }}
                         disabled={
-                          (action.id === 'hydration' && updateHydrationMutation.isPending) ||
-                          (action.id === 'medications' && updateMedicationMutation.isPending) ||
-                          (action.id === 'nutrition' && updateMealsMutation.isPending)
+                          (action.id === 'hydration' && hydrationMutation.isPending) ||
+                          (action.id === 'medications' && medicationMutation.isPending) ||
+                          (action.id === 'nutrition' && mealsMutation.isPending)
                         }
                         className="h-8 w-8 p-0 border-gray-300 hover:border-red-400 hover:bg-red-50"
                       >
@@ -437,17 +407,17 @@ const WarriorHomePage = ({ profileType, activeTab, onTabChange }: WarriorHomePag
                         onClick={(e) => {
                           e.stopPropagation();
                           if (action.id === 'hydration') {
-                            updateHydrationMutation.mutate(true);
+                            handleUpdateHyrationMutation(true);
                           } else if (action.id === 'medications') {
-                            updateMedicationMutation.mutate(true);
+                            handleUpdateMedicationMutation(true);
                           } else if (action.id === 'nutrition') {
-                            updateMealsMutation.mutate(true);
+                            handleUpdateMealsMutation(true);
                           }
                         }}
                         disabled={
-                          (action.id === 'hydration' && updateHydrationMutation.isPending) ||
-                          (action.id === 'medications' && updateMedicationMutation.isPending) ||
-                          (action.id === 'nutrition' && updateMealsMutation.isPending)
+                          (action.id === 'hydration' && hydrationMutation.isPending) ||
+                          (action.id === 'medications' && medicationMutation.isPending) ||
+                          (action.id === 'nutrition' && mealsMutation.isPending)
                         }
                         className="h-8 w-8 p-0 bg-brand-red hover:bg-red-600 text-white"
                       >

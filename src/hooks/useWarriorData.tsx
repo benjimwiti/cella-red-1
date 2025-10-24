@@ -5,7 +5,7 @@ import { readItems } from "../services/dataService";
 export function useWarriorData(userId: string) {
   const results = useQueries({
     queries: [
-      { queryKey: ["appointments", userId], queryFn: () => readItems("appointments", userId) },
+      //{ queryKey: ["appointments", userId], queryFn: () => readItems("appointments", userId) },
       //{ queryKey: ["chat_logs", userId], queryFn: () => readItems("chat_logs", userId) },
       //{ queryKey: ["circle_invites", userId], queryFn: () => readItems("circle_invites", userId) },
       //{ queryKey: ["circle_members", userId], queryFn: () => readItems("circle_members", userId) },
@@ -23,6 +23,8 @@ export function useWarriorData(userId: string) {
   const isLoading = results.some((q) => q.isLoading);
   const isError = results.some((q) => q.isError);
 
+  //console.log(results);
+
   const data = Object.fromEntries(
     results.map((q, i) => [
       [
@@ -39,7 +41,7 @@ export function useWarriorData(userId: string) {
         "profiles",
         //"weather_logs",
       ][i],
-      q.data,
+      q.data?.data || [],
     ])
   );
 
