@@ -13,7 +13,7 @@ export function useWarriorData(userId: string) {
       //{ queryKey: ["crisis_logs", userId], queryFn: () => readItems("crisis_logs", userId) },
       { queryKey: ["hydration_logs", userId], queryFn: () => readItems("hydration_logs", userId) },
       { queryKey: ["meals", userId], queryFn: () => readItems("meals", userId) },
-      //{ queryKey: ["medication_logs", userId], queryFn: () => readItems("medication_logs", userId) },
+      { queryKey: ["medication_logs", userId], queryFn: () => readItems("medication_logs", userId) },
       { queryKey: ["medications", userId], queryFn: () => readItems("medications", userId) },
       { queryKey: ["profiles", userId], queryFn: () => readItems("profiles", userId) },
       //{ queryKey: ["weather_logs"], queryFn: () => readItems("weather_logs") }, // global
@@ -36,7 +36,7 @@ export function useWarriorData(userId: string) {
         //"crisis_logs",
         "hydration_logs",
         "meals",
-        //"medication_logs",
+        "medication_logs",
         "medications",
         "profiles",
         //"weather_logs",

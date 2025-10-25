@@ -57,6 +57,7 @@ export class HealthService {
 
   // Medication Management
   static async getMedications(userId: string) {
+    console.log("running health service", data?.data)
     const { data, error } = await supabase
       .from('medications')
       .select('*')
@@ -65,7 +66,7 @@ export class HealthService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data as Medication[];
+    return data?.data as Medication[];
   }
 
   static async addMedication(medication: Omit<Medication, 'id' | 'created_at' | 'updated_at'>) {
