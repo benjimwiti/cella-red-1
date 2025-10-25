@@ -19,7 +19,7 @@ const HealthLogsPage = () => {
 
         {/* Quick Stats Overview - Responsive grid */}
         <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+          <Card className="bg-background shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-3 sm:p-4 text-center">
               <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-brand-red mx-auto mb-2" />
               <div className="text-base sm:text-lg font-bold">7</div>
@@ -27,7 +27,7 @@ const HealthLogsPage = () => {
             </CardContent>
           </Card>
           
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+          <Card className="bg-background shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-3 sm:p-4 text-center">
               <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 mx-auto mb-2" />
               <div className="text-base sm:text-lg font-bold">3</div>
@@ -35,7 +35,7 @@ const HealthLogsPage = () => {
             </CardContent>
           </Card>
           
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+          <Card className="bg-background shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-3 sm:p-4 text-center">
               <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-green-500 mx-auto mb-2" />
               <div className="text-base sm:text-lg font-bold">85%</div>
@@ -50,7 +50,7 @@ const HealthLogsPage = () => {
           <MedicationTracker />
           
           {/* Quick Actions - Responsive grid */}
-          <Card className="bg-white shadow-sm">
+          <Card className="bg-background shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg sm:text-xl">Quick Actions</CardTitle>
             </CardHeader>

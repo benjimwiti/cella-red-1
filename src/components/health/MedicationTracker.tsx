@@ -11,33 +11,43 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useWarriorData } from '@/hooks/useWarriorData';
 
 const MedicationTracker = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const { data, isLoading } = useWarriorData(user?.id || '');
 
-  const { data: medications = [], isLoading } = useQuery({
-    queryKey: ['medications', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return [];
-      return await HealthService.getMedications(user.id);
-    },
-    enabled: !!user?.id,
-  });
+  // const { data: medications = [], isLoading } = useQuery({
+  //   queryKey: ['medications', user?.id],
+  //   queryFn: async () => {
+  //     console.log("user id", user?.id);
+  //     if (!user?.id) return [];
+  //     const data = await HealthService.getMedications(user.id);
+  //     return 
+  //   },
+  //   enabled: !!user?.id,
+  // });
 
-  const { data: todayLogs = [] } = useQuery({
-    queryKey: ['medication-logs', user?.id, new Date().toDateString()],
-    queryFn: async () => {
-      if (!user?.id) return [];
-      const today = new Date().toISOString().split('T')[0];
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      return await HealthService.getMedicationLogs(user.id, today, tomorrow.toISOString().split('T')[0]);
-    },
-    enabled: !!user?.id,
-  });
+  const medications = data?.medications || [];
+  console.log("medications data", medications);
+
+
+  // const { data: todayLogs = [] } = useQuery({
+  //   queryKey: ['medication-logs', user?.id, new Date().toDateString()],
+  //   queryFn: async () => {
+  //     if (!user?.id) return [];
+  //     const today = new Date().toISOString().split('T')[0];
+  //     const tomorrow = new Date();
+  //     tomorrow.setDate(tomorrow.getDate() + 1);
+  //     return await HealthService.getMedicationLogs(user.id, today, tomorrow.toISOString().split('T')[0]);
+  //   },
+  //   enabled: !!user?.id,
+  // });
+  const todayLogs = data?.medication_logs || []
+  console.log("todayLogs", todayLogs);
 
   const markAsTaken = async (medicationId: string, dosage: string) => {
     if (!user?.id) return;
