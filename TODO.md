@@ -1,10 +1,7 @@
-# WarriorHomePage Live Data Integration TODO
+# TODO: Implement Crisis and Appointment Trackers
 
-- [x] Uncomment and integrate useWarriorData hook in WarriorHomePage.tsx
-- [x] Replace mock todayStats with data from useWarriorData hook
-- [x] Add loading state handling while data is fetching
-- [x] Update UI elements to display real data (hydration, medications, meals, profile name)
-- [x] Update risk level based on fetched data if available
-- [x] Test the page to verify data loads correctly
-- [x] Add reset button to reset daily logs to zero
-- [x] Add increment/decrement buttons for water intake, medications, and nutrition tracking
+## Tasks
+- [x] Update healthService.ts: Add date parameter to getCrisisLogs and getAppointments for "today" mode filtering
+- [x] Create CrisisTracker.tsx: Component for tracking pain episodes with "today" and "all" modes
+- [x] Create AppointmentTracker.tsx: Component for tracking appointments with "today" and "all" modes
+- [x] Update HealthLogsPage.tsx: Import and add CrisisTracker and AppointmentTracker components

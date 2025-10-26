@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Pill, Clock, CheckCircle, Plus } from 'lucide-react';
+import { Pill, Clock, CheckCircle, Plus, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { HealthService } from '@/services/healthService';
 import { useToast } from '@/hooks/use-toast';
@@ -18,36 +18,14 @@ const MedicationTracker = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [mode, setMode] = useState<'today' | 'all'>('today');
   const { data, isLoading } = useWarriorData(user?.id || '');
 
-  // const { data: medications = [], isLoading } = useQuery({
-  //   queryKey: ['medications', user?.id],
-  //   queryFn: async () => {
-  //     console.log("user id", user?.id);
-  //     if (!user?.id) return [];
-  //     const data = await HealthService.getMedications(user.id);
-  //     return 
-  //   },
-  //   enabled: !!user?.id,
-  // });
-
-  const medications = data?.medications || [];
-  console.log("medications data", medications);
-
-
-  // const { data: todayLogs = [] } = useQuery({
-  //   queryKey: ['medication-logs', user?.id, new Date().toDateString()],
-  //   queryFn: async () => {
-  //     if (!user?.id) return [];
-  //     const today = new Date().toISOString().split('T')[0];
-  //     const tomorrow = new Date();
-  //     tomorrow.setDate(tomorrow.getDate() + 1);
-  //     return await HealthService.getMedicationLogs(user.id, today, tomorrow.toISOString().split('T')[0]);
-  //   },
-  //   enabled: !!user?.id,
-  // });
+  //read data from hook
+  const allMedications = data?.medications || [];
+  const medications = mode === 'today' ? allMedications.filter(med => med.is_active) : allMedications;
   const todayLogs = data?.medication_logs || []
-  console.log("todayLogs", todayLogs);
+ 
 
   const markAsTaken = async (medicationId: string, dosage: string) => {
     if (!user?.id) return;
@@ -110,11 +88,11 @@ const MedicationTracker = () => {
                 <Plus className="w-4 h-4" />
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Add New Medication</DialogTitle>
               </DialogHeader>
-              <AddMedicationForm 
+              <AddMedicationForm
                 onSuccess={() => {
                   setShowAddDialog(false);
                   queryClient.invalidateQueries({ queryKey: ['medications'] });
@@ -123,6 +101,24 @@ const MedicationTracker = () => {
             </DialogContent>
           </Dialog>
         </CardTitle>
+        <div className="flex gap-2 mt-3">
+          <Button
+            size="sm"
+            variant={mode === 'today' ? 'default' : 'outline'}
+            onClick={() => setMode('today')}
+            className={mode === 'today' ? 'bg-cella-rose hover:bg-cella-rose-dark' : ''}
+          >
+            Today's Medications
+          </Button>
+          <Button
+            size="sm"
+            variant={mode === 'all' ? 'default' : 'outline'}
+            onClick={() => setMode('all')}
+            className={mode === 'all' ? 'bg-cella-rose hover:bg-cella-rose-dark' : ''}
+          >
+            All Medications
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
         {medications.length === 0 ? (
@@ -133,33 +129,45 @@ const MedicationTracker = () => {
           </div>
         ) : (
           medications.map((medication) => (
-            <div key={medication.id} className="flex items-center justify-between p-3 border rounded-lg">
+            <div key={medication.id} className="p-3 border rounded-lg space-y-2">
               <div className="flex-1">
                 <div className="font-medium">{medication.name}</div>
                 <div className="text-sm text-cella-grey">
-                  {medication.dosage} • {medication.frequency}
-                </div>
-                <div className="text-xs text-cella-grey flex items-center gap-1 mt-1">
-                  <Clock className="w-3 h-3" />
-                  {medication.time_of_day.join(', ')}
+                  {medication.dosage}
                 </div>
               </div>
-              
-              <div className="flex items-center gap-2">
-                {isTakenToday(medication.id) ? (
-                  <Badge variant="secondary" className="bg-green-100 text-green-700">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Taken
-                  </Badge>
-                ) : (
-                  <Button
-                    size="sm"
-                    onClick={() => markAsTaken(medication.id, medication.dosage)}
-                    className="bg-cella-rose hover:bg-cella-rose-dark"
-                  >
-                    Take Now
-                  </Button>
-                )}
+              <div className="space-y-2">
+                {medication.time_of_day.map((time, index) => {
+                  if (!time) return null;
+                  const [hours, minutes] = time.split(':');
+                  const hour = parseInt(hours);
+                  const ampm = hour >= 12 ? 'PM' : 'AM';
+                  const displayHour = hour % 12 || 12;
+                  const displayTime = `${displayHour}:${minutes}`;
+
+                  return (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="text-xs text-cella-grey flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {displayTime}
+                      </div>
+                      {isTakenToday(medication.id) ? (
+                        <Badge variant="secondary" className="bg-green-100 text-green-700">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Taken
+                        </Badge>
+                      ) : (
+                        <Button
+                          size="sm"
+                          onClick={() => markAsTaken(medication.id, medication.dosage)}
+                          className="bg-cella-rose hover:bg-cella-rose-dark"
+                        >
+                          Take Now
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))
@@ -175,10 +183,53 @@ const AddMedicationForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [formData, setFormData] = useState({
     name: '',
     dosage: '',
-    frequency: '',
     time_of_day: [''],
     notes: ''
   });
+
+  const timeTemplates = {
+    'Once a day': ['8:00 AM'],
+    'Twice a day': ['8:00 AM', '8:00 PM'],
+    'Thrice a day': ['8:00 AM', '2:00 PM', '8:00 PM'],
+    'Four times a day': ['8:00 AM', '12:00 PM', '4:00 PM', '8:00 PM']
+  };
+
+  const applyTemplate = (template: string) => {
+    setFormData(prev => ({
+      ...prev,
+      time_of_day: timeTemplates[template as keyof typeof timeTemplates]
+    }));
+  };
+
+  const addTimeSlot = () => {
+    setFormData(prev => ({
+      ...prev,
+      time_of_day: [...prev.time_of_day, '']
+    }));
+  };
+
+  const removeTimeSlot = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      time_of_day: prev.time_of_day.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateTimeSlot = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      time_of_day: prev.time_of_day.map((time, i) => i === index ? value : time)
+    }));
+  };
+
+  const formatTime = (time: string) => {
+    if (!time) return '';
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,7 +240,7 @@ const AddMedicationForm = ({ onSuccess }: { onSuccess: () => void }) => {
         user_id: user.id,
         name: formData.name,
         dosage: formData.dosage,
-        frequency: formData.frequency,
+        frequency: `${formData.time_of_day.length} times daily`,
         time_of_day: formData.time_of_day.filter(time => time.trim()),
         start_date: new Date().toISOString().split('T')[0],
         notes: formData.notes || undefined,
@@ -223,7 +274,7 @@ const AddMedicationForm = ({ onSuccess }: { onSuccess: () => void }) => {
           required
         />
       </div>
-      
+
       <div>
         <Label htmlFor="dosage">Dosage</Label>
         <Input
@@ -234,29 +285,67 @@ const AddMedicationForm = ({ onSuccess }: { onSuccess: () => void }) => {
           required
         />
       </div>
-      
+
       <div>
-        <Label htmlFor="frequency">Frequency</Label>
-        <Input
-          id="frequency"
-          value={formData.frequency}
-          onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
-          placeholder="e.g., Once daily"
-          required
-        />
+        <Label>Time Templates</Label>
+        <div className="flex flex-wrap gap-2 mt-1">
+          {Object.keys(timeTemplates).map((template) => (
+            <Button
+              key={template}
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => applyTemplate(template)}
+              className="text-xs"
+            >
+              {template}
+            </Button>
+          ))}
+        </div>
       </div>
-      
+
       <div>
-        <Label htmlFor="time">Time of Day</Label>
-        <Input
-          id="time"
-          value={formData.time_of_day[0]}
-          onChange={(e) => setFormData({ ...formData, time_of_day: [e.target.value] })}
-          placeholder="e.g., 8:00 AM"
-          required
-        />
+        <Label>Time of Day</Label>
+        <div className="space-y-2 mt-1">
+          {formData.time_of_day.map((time, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <Input
+                value={time}
+                onChange={(e) => updateTimeSlot(index, e.target.value)}
+                placeholder="e.g., 8:00 AM"
+                required
+              />
+              {formData.time_of_day.length > 1 && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => removeTimeSlot(index)}
+                  className="p-2"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          ))}
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={addTimeSlot}
+            className="w-full"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Time Slot
+          </Button>
+        </div>
+        {formData.time_of_day.some(time => time) && (
+          <div className="text-sm text-cella-grey mt-2">
+            Preview: {formData.time_of_day.filter(time => time).map(formatTime).join(', ')}
+          </div>
+        )}
       </div>
-      
+
       <div>
         <Label htmlFor="notes">Notes (Optional)</Label>
         <Input
@@ -266,7 +355,7 @@ const AddMedicationForm = ({ onSuccess }: { onSuccess: () => void }) => {
           placeholder="Any special instructions"
         />
       </div>
-      
+
       <Button type="submit" className="w-full bg-cella-rose hover:bg-cella-rose-dark">
         Add Medication
       </Button>

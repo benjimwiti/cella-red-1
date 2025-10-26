@@ -122,14 +122,27 @@ export class HealthService {
     return data;
   }
 
-  static async getCrisisLogs(userId: string, limit: number = 10) {
-    const { data, error } = await supabase
+  static async getCrisisLogs(userId: string, date?: string, limit: number = 10) {
+    let query = supabase
       .from('crisis_logs')
       .select('*')
       .eq('user_id', userId)
-      .order('started_at', { ascending: false })
-      .limit(limit);
+      .order('started_at', { ascending: false });
 
+    if (date) {
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      query = query
+        .gte('started_at', startOfDay.toISOString())
+        .lte('started_at', endOfDay.toISOString());
+    } else {
+      query = query.limit(limit);
+    }
+
+    const { data, error } = await query;
     if (error) throw error;
     return data as CrisisLog[];
   }
@@ -152,15 +165,24 @@ export class HealthService {
   }
 
   // Appointments
-  static async getAppointments(userId: string, upcoming: boolean = true) {
+  static async getAppointments(userId: string, date?: string, upcoming: boolean = true) {
     const now = new Date().toISOString();
-    
+
     let query = supabase
       .from('appointments')
       .select('*')
       .eq('user_id', userId);
 
-    if (upcoming) {
+    if (date) {
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      query = query
+        .gte('appointment_date', startOfDay.toISOString())
+        .lte('appointment_date', endOfDay.toISOString());
+    } else if (upcoming) {
       query = query.gte('appointment_date', now);
     }
 

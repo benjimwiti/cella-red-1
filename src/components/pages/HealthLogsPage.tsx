@@ -1,6 +1,9 @@
 
 import HydrationTracker from '@/components/health/HydrationTracker';
 import MedicationTracker from '@/components/health/MedicationTracker';
+import MealTracker from '@/components/health/MealTracker';
+import CrisisTracker from '@/components/health/CrisisTracker';
+import AppointmentTracker from '@/components/health/AppointmentTracker';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Activity, Calendar, TrendingUp } from 'lucide-react';
 
@@ -48,6 +51,9 @@ const HealthLogsPage = () => {
         <div className="space-y-4 sm:space-y-6">
           <HydrationTracker />
           <MedicationTracker />
+          <MealTracker />
+          <CrisisTracker />
+          <AppointmentTracker />
           
           {/* Quick Actions - Responsive grid */}
           <Card className="bg-background shadow-sm">
