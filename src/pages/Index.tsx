@@ -93,9 +93,9 @@ const handleProfilefetch = async () => {
       .select("role")
       .eq("id", user.id)
       .single();
-
+      console.log("Profile fetch response:", { data,});
     // Case 1: profile not found
-    if (status === 406 || data === null) {
+    if (status === 406 || data.role === null) {
       console.log("No profile found for user, prompting selection...");
       setProfileType(null);
       setShowAuth(true); // still authenticated, just no profile yet

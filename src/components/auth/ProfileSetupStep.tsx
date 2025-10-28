@@ -99,8 +99,8 @@ const ProfileSetupStep = ({ onComplete, onBack, onSkipDemo }: ProfileSetupStepPr
     <AuthLayout
       title="Complete your profile"
       subtitle="Tell us a bit about yourself"
-      step={3}
-      totalSteps={3}
+      step={2}
+      totalSteps={2}
     >
       <div className="bg-white rounded-2xl shadow-card p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -252,20 +252,7 @@ const ProfileSetupStep = ({ onComplete, onBack, onSkipDemo }: ProfileSetupStepPr
           </div>
 
           {/* PIN (Optional) */}
-          <div className="space-y-3">
-            <Label htmlFor="pin" className="text-brand-charcoal font-medium">
-              Set PIN <span className="text-brand-charcoal/50">(Optional)</span>
-            </Label>
-            <Input
-              id="pin"
-              type="password"
-              placeholder="4-digit PIN"
-              value={pin}
-              onChange={(e) => setPin(e.target.value.slice(0, 4))}
-              className="h-14 text-base brand-input"
-              maxLength={4}
-            />
-          </div>
+        
 
           <div className="space-y-4 pt-4">
             <Button 

@@ -69,7 +69,7 @@ const EmailStep = ({ onNext, onLogin, isLogin = false }: EmailStepProps) => {
       title={isLogin ? "Welcome back" : "Get started"}
       subtitle={isLogin ? "Enter your email to sign in" : "Enter your email to create your account"}
       step={isLogin ? undefined : 1}
-      totalSteps={isLogin ? undefined : 3}
+      totalSteps={isLogin ? undefined : 2}
     >
       <div className="bg-white rounded-2xl shadow-card p-8">
         <form onSubmit={handleSubmit} className="space-y-6">

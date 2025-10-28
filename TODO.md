@@ -1,7 +1,16 @@
-# TODO: Implement Crisis and Appointment Trackers
+# Remove Verification Component from Auth Flow
 
 ## Tasks
-- [x] Update healthService.ts: Add date parameter to getCrisisLogs and getAppointments for "today" mode filtering
-- [x] Create CrisisTracker.tsx: Component for tracking pain episodes with "today" and "all" modes
-- [x] Create AppointmentTracker.tsx: Component for tracking appointments with "today" and "all" modes
-- [x] Update HealthLogsPage.tsx: Import and add CrisisTracker and AppointmentTracker components
+- [ ] Update AuthFlow.tsx to remove verification step and adjust flow
+- [ ] Update EmailStep.tsx step numbers (3 -> 2 for signup)
+- [ ] Update ProfileSetupStep.tsx step numbers and back navigation
+- [ ] Remove VerificationStep.tsx file (no longer needed)
+- [ ] Test the updated auth flow
+
+## Current Flow
+Signup: Email -> Verification -> Profile -> Success
+Login: Email -> Password -> Success
+
+## New Flow
+Signup: Email -> Profile -> Success
+Login: Email -> Password -> Success

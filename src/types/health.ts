@@ -88,6 +88,16 @@ export interface WeatherLog {
   created_at: string;
 }
 
+export interface MoodLog {
+  id: string;
+  user_id: string;
+  date: string;
+  mood_level: number; // 1-10 scale
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ChatLog {
   id: string;
   user_id: string;

@@ -10,7 +10,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
+import { Appointment } from '@/types/health';
 
 const AppointmentTracker = () => {
   const { user } = useAuth();
@@ -96,7 +98,7 @@ const AppointmentTracker = () => {
         {appointments && appointments.length === 0 ? (
           <div className="text-center py-6 text-cella-grey">
             <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p>No appointments scheduled yet</p>
+            <p>No appointments scheduled</p>
             <p className="text-sm">Tap the + button to schedule your first appointment</p>
           </div>
         ) : (
@@ -105,7 +107,7 @@ const AppointmentTracker = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <Badge variant={appointment.is_completed ? "secondary" : "default"} className="text-xs">
-                    {appointment.is_completed ? "Completed" : "Scheduled"}
+                    {appointment.is_completed ? 'Completed' : 'Scheduled'}
                   </Badge>
                 </div>
                 <div className="font-medium">
@@ -115,7 +117,7 @@ const AppointmentTracker = () => {
                   {appointment.healthcare_provider}
                 </div>
                 {appointment.location && (
-                  <div className="text-sm text-cella-grey mt-1 flex items-center gap-1">
+                  <div className="text-sm text-cella-grey flex items-center gap-1 mt-1">
                     <MapPin className="w-3 h-3" />
                     {appointment.location}
                   </div>
@@ -128,8 +130,12 @@ const AppointmentTracker = () => {
               </div>
               <div className="text-xs text-cella-grey flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                {new Date(appointment.appointment_date).toLocaleDateString()}
-                {' '}
+                {new Date(appointment.appointment_date).toLocaleDateString([], {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+                {' at '}
                 {new Date(appointment.appointment_date).toLocaleTimeString([], {
                   hour: 'numeric',
                   minute: '2-digit'
@@ -192,7 +198,7 @@ const AddAppointmentForm = ({ onSuccess }: { onSuccess: () => void }) => {
           id="title"
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          placeholder="e.g., Doctor Visit, Therapy Session"
+          placeholder="e.g., Check-up, Therapy Session"
           required
         />
       </div>
@@ -203,7 +209,7 @@ const AddAppointmentForm = ({ onSuccess }: { onSuccess: () => void }) => {
           id="healthcare_provider"
           value={formData.healthcare_provider}
           onChange={(e) => setFormData({ ...formData, healthcare_provider: e.target.value })}
-          placeholder="e.g., Dr. Smith, City Hospital"
+          placeholder="e.g., Dr. Smith, Pain Clinic"
           required
         />
       </div>
@@ -225,17 +231,18 @@ const AddAppointmentForm = ({ onSuccess }: { onSuccess: () => void }) => {
           id="location"
           value={formData.location}
           onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-          placeholder="e.g., 123 Main St, Suite 100"
+          placeholder="e.g., Main Street Clinic, Room 205"
         />
       </div>
 
       <div>
         <Label htmlFor="notes">Notes (Optional)</Label>
-        <Input
+        <Textarea
           id="notes"
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-          placeholder="Any additional notes"
+          placeholder="Any additional notes or preparation instructions"
+          rows={3}
         />
       </div>
 

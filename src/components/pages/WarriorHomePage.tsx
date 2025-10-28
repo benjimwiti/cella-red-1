@@ -464,7 +464,7 @@ const handleUpdateMealsMutation = async (increment: boolean) => {
             disabled={resetLogsMutation.isPending}
             variant="outline"
             size="lg"
-            className="bg-white/80 backdrop-blur-sm border-2 border-gray-200 hover:border-brand-red hover:bg-brand-red/5 transition-all duration-300 shadow-lg"
+            className="bg-background text-foreground backdrop-blur-sm border-2 border-gray-200 hover:border-brand-red hover:bg-brand-red/5 transition-all duration-300 shadow-lg"
           >
             <RotateCcw className="w-5 h-5 mr-2" />
             {resetLogsMutation.isPending ? 'Resetting...' : 'Reset Daily Logs'}

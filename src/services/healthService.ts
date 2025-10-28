@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { HydrationLog, Medication, MedicationLog, CrisisLog, Meal, Appointment } from '@/types/health';
+import { HydrationLog, Medication, MedicationLog, CrisisLog, Meal, Appointment, MoodLog } from '@/types/health';
 
 export class HealthService {
   // Hydration Tracking
@@ -228,7 +228,7 @@ export class HealthService {
       startOfDay.setHours(0, 0, 0, 0);
       const endOfDay = new Date(date);
       endOfDay.setHours(23, 59, 59, 999);
-      
+
       query = query
         .gte('meal_time', startOfDay.toISOString())
         .lte('meal_time', endOfDay.toISOString());
@@ -237,5 +237,33 @@ export class HealthService {
     const { data, error } = await query;
     if (error) throw error;
     return data as Meal[];
+  }
+
+  // Mood Logging
+  static async logMood(mood: Omit<MoodLog, 'id' | 'created_at' | 'updated_at'>) {
+    const { data, error } = await supabase
+      .from('mood_logs')
+      .upsert(mood, { onConflict: 'user_id,date' })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async getMoodLogs(userId: string, date?: string) {
+    let query = supabase
+      .from('mood_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .order('date', { ascending: false });
+
+    if (date) {
+      query = query.eq('date', date);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data as MoodLog[];
   }
 }

@@ -2,7 +2,6 @@
 import { useState } from "react";
 import EmailStep from "./EmailStep";
 import PasswordStep from "./PasswordStep";
-import VerificationStep from "./VerificationStep";
 import ProfileSetupStep from "./ProfileSetupStep";
 import AuthLayout from "./AuthLayout";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,7 @@ interface AuthFlowProps {
 }
 
 const AuthFlow = ({ onComplete }: AuthFlowProps) => {
-  const [step, setStep] = useState<"email" | "password" | "verification" | "profile" | "success">("email");
+  const [step, setStep] = useState<"email" | "password" | "profile" | "success">("email");
   const [email, setEmail] = useState("");
   const [profile, setProfile] = useState<any>(null);
   const [isLogin, setIsLogin] = useState(false);
@@ -33,17 +32,9 @@ const AuthFlow = ({ onComplete }: AuthFlowProps) => {
     if (isLogin) {
       setStep("password");
     } else {
-      setStep("verification");
-    }
-    console.log("from email to", isLogin ? "password" : "verification", "component");
-  };
-
-  const handleVerificationNext = () => {
-    if (isLogin) {
-      setStep("success");
-    } else {
       setStep("profile");
     }
+    console.log("from email to", isLogin ? "password" : "profile", "component");
   };
 
   const handleProfileComplete = (profileData: any) => {
@@ -151,22 +142,11 @@ const AuthFlow = ({ onComplete }: AuthFlowProps) => {
     );
   }
 
-  if (step === "verification") {
-    return (
-      <VerificationStep
-        email={email}
-        onNext={handleVerificationNext}
-        onBack={() => {console.log("setting step to email");setIsUser(false);setStep("email")}}
-        isLogin={isLogin}
-      />
-    );
-  }
-
   if (step === "profile") {
     return (
       <ProfileSetupStep
         onComplete={handleProfileComplete}
-        onBack={() => setStep("verification")}
+        onBack={() => setStep("email")}
       />
     );
   }
