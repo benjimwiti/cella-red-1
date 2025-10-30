@@ -58,11 +58,7 @@ const CaregiverBottomNavigation = ({ activeTab, onTabChange, onBack, onSignOut, 
             <LogOut className="w-5 h-5 mb-1 flex-shrink-0" />
             <span className="text-xs font-medium truncate text-center">Sign Out</span>
           </button>
-
-          {/* Theme Toggle */}
-          <div className="flex items-center px-2">
-            <ThemeToggle />
-          </div>
+          
         </div>
       </div>
   );

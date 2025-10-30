@@ -1,5 +1,5 @@
 import { User, LogOut } from "lucide-react";
-import { ThemeToggle } from "./ui/theme-toggle.tsx";
+import { ThemeToggle } from "../ui/theme-toggle.tsx";
 
 interface CaregiverDashboardNavigationProps {
   onProfile: () => void;
