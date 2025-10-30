@@ -19,8 +19,9 @@ const AuthFlow = ({ onComplete }: AuthFlowProps) => {
   const [profile, setProfile] = useState<any>(null);
   const [isLogin, setIsLogin] = useState(false);
   const [isUser, setIsUser] = useState(true);
-
   const { user } = useAuth();
+
+  console.log("AuthFlow - current step:", step);
 
   const handleToLogin = () => {
     setIsLogin(!isLogin);
@@ -32,6 +33,7 @@ const AuthFlow = ({ onComplete }: AuthFlowProps) => {
     if (isLogin) {
       setStep("password");
     } else {
+      console.log("proceeding to profile setup step");
       setStep("profile");
     }
     console.log("from email to", isLogin ? "password" : "profile", "component");
@@ -53,6 +55,7 @@ const AuthFlow = ({ onComplete }: AuthFlowProps) => {
   };
 
   const handleBackFromSuccess = () => {
+    console.log("Back from success to", isLogin ? "password" : "profile", "step");
     if (isLogin) {
       setStep("password");
     } else {
@@ -113,7 +116,7 @@ const AuthFlow = ({ onComplete }: AuthFlowProps) => {
   }
 
   if (step === "email") {
-
+console.log("isUser state:", isUser);
     if (isUser && user) {
       setEmail(user.email || "");
       setStep("profile");

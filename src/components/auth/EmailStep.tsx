@@ -22,7 +22,7 @@ const EmailStep = ({ onNext, onLogin, isLogin = false }: EmailStepProps) => {
   const { toast } = useToast();
   const [login, setLogin] = useState(isLogin);
 
-  console.log("issue in email step")
+  //console.log("issue in email step")
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || (!isLogin && !pwd)) return;

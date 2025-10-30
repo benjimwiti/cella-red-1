@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import CaregiverWelcome from "./caregiver/CaregiverWelcome";
-import ChildRegistration from "./caregiver/ChildRegistration";
-import ChildProfiles from "./caregiver/ChildProfiles";
-import ChildDashboard from "./caregiver/ChildDashboard";
+import CaregiverWelcome from "./CaregiverWelcome";
+import ChildRegistration from "./ChildRegistration";
+import ChildProfiles from "./ChildProfiles";
+import ChildDashboard from "./ChildDashboard";
 
 interface ChildProfile {
   id: string;
@@ -136,6 +136,7 @@ const CaregiverDashboard = ({ onNavigateToTabs }: CaregiverDashboardProps = {}) 
     case 'profiles':
       return (
         <ChildProfiles
+          onBack={() => setView("welcome")}
           children={children}
           onSelectChild={handleSelectChild}
           onAddChild={() => setView('registration')}

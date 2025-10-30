@@ -1,3 +1,8 @@
+handlecaregiverback?
+
+
+
+---
 1. checkout the changes to update-medications table and subsequently change the associated code to match the suggested schema this is after a successful migration.
 2. upon success we are to implement notification feature. let's start with medication feature notifications. our app is to send notifications at the start of each day let it be at 6am though the user is to select a time each day for a comprehensive reminder of the day's pending medications in the settings, an additional reminder is to be sent 10 min before and 10 min after . 
 for 10 min after; we are to send notification in the case a user hasn't clicked the take now button 10 min after the due time. we then send a notification. if the user takes the due medication within a 30 min window after the due time, mark was on time to be true for medication log entry. Past a 30 min mark this entry will have a false "was on time". Logging will be done upon clicking of the button or by default 30min

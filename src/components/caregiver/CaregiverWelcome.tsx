@@ -10,14 +10,14 @@ interface CaregiverWelcomeProps {
 
 const CaregiverWelcome = ({ onRegisterChild, onViewProfiles, onNavigateToTabs }: CaregiverWelcomeProps) => {
   return (
-    <div className="min-h-screen cella-gradient">
+    <div className="min-h-screen cella-gradient text-foreground">
       <div className="w-full max-w-md mx-auto px-4 py-8 space-y-8">
         {/* Header */}
         <div className="text-center space-y-4 pt-12">
-          <h1 className="text-2xl sm:text-3xl font-bold text-brand-charcoal">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
             Welcome, Caregiver 👋
           </h1>
-          <p className="text-brand-charcoal/70 text-base sm:text-lg leading-relaxed">
+          <p className="text-foreground/70 text-base sm:text-lg leading-relaxed">
             Manage your child's sickle cell journey with ease.
           </p>
         </div>
@@ -41,10 +41,10 @@ const CaregiverWelcome = ({ onRegisterChild, onViewProfiles, onNavigateToTabs }:
                   <Plus className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-brand-charcoal text-lg mb-1">
+                  <h3 className="font-semibold text-foreground text-lg mb-1">
                     Register a Child
                   </h3>
-                  <p className="text-brand-charcoal/60 text-sm">
+                  <p className="text-foreground/60 text-sm">
                     Create a new profile to start tracking
                   </p>
                 </div>
@@ -62,10 +62,10 @@ const CaregiverWelcome = ({ onRegisterChild, onViewProfiles, onNavigateToTabs }:
                   <LogIn className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-brand-charcoal text-lg mb-1">
+                  <h3 className="font-semibold text-foreground text-lg mb-1">
                     View Child Profiles
                   </h3>
-                  <p className="text-brand-charcoal/60 text-sm">
+                  <p className="text-foreground/60 text-sm">
                     Access your child's existing data
                   </p>
                 </div>
@@ -86,10 +86,10 @@ const CaregiverWelcome = ({ onRegisterChild, onViewProfiles, onNavigateToTabs }:
                       <Trophy className="w-6 h-6 text-white" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-brand-charcoal text-lg mb-1">
+                      <h3 className="font-semibold text-foreground text-lg mb-1">
                         Circle & Ask Cella
                       </h3>
-                      <p className="text-brand-charcoal/60 text-sm">
+                      <p className="text-foreground/60 text-sm">
                         Connect with community and get AI support
                       </p>
                     </div>
@@ -102,7 +102,7 @@ const CaregiverWelcome = ({ onRegisterChild, onViewProfiles, onNavigateToTabs }:
 
         {/* Footer Note */}
         <div className="text-center pt-8">
-          <p className="text-brand-charcoal/50 text-sm">
+          <p className="text-foreground/50 text-sm">
             Secure, private, and always available for your family
           </p>
         </div>

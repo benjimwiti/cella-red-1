@@ -83,7 +83,7 @@ const CaregiverProfileSettings = ({ onBack, children, onProfileTypeChange }: Car
           <CardContent className="p-6 text-center">
             <Calendar className="w-12 h-12 text-brand-red mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">Appointments Manager</h3>
-            <p className="text-brand-charcoal/60">Manage appointments for your children - coming soon!</p>
+            <p className="text-foreground/60">Manage appointments for your children - coming soon!</p>
           </CardContent>
         </Card>
       </div>
@@ -100,7 +100,7 @@ const CaregiverProfileSettings = ({ onBack, children, onProfileTypeChange }: Car
           <CardContent className="p-6 text-center">
             <Shield className="w-12 h-12 text-brand-red mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">Emergency Setup</h3>
-            <p className="text-brand-charcoal/60">Configure emergency contacts - coming soon!</p>
+            <p className="text-foreground/60">Configure emergency contacts - coming soon!</p>
           </CardContent>
         </Card>
       </div>
@@ -117,7 +117,7 @@ const CaregiverProfileSettings = ({ onBack, children, onProfileTypeChange }: Car
           <CardContent className="p-6 text-center">
             <FileText className="w-12 h-12 text-brand-red mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">Export Health Reports</h3>
-            <p className="text-brand-charcoal/60">Download health data reports - coming soon!</p>
+            <p className="text-foreground/60">Download health data reports - coming soon!</p>
           </CardContent>
         </Card>
       </div>
@@ -134,7 +134,7 @@ const CaregiverProfileSettings = ({ onBack, children, onProfileTypeChange }: Car
           <CardContent className="p-6 text-center">
             <Bell className="w-12 h-12 text-brand-red mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">Notifications & Reminders</h3>
-            <p className="text-brand-charcoal/60">Manage notification preferences - coming soon!</p>
+            <p className="text-foreground/60">Manage notification preferences - coming soon!</p>
           </CardContent>
         </Card>
       </div>

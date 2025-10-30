@@ -10,8 +10,9 @@ import WarriorAskCellaPage from '@/components/pages/WarriorAskCellaPage';
 import WarriorCirclePage from '@/components/pages/WarriorCirclePage';
 import WarriorProfilePage from '@/components/pages/WarriorProfilePage';
 import HealthLogsPage from '@/components/pages/HealthLogsPage';
-import CaregiverDashboard from '@/components/CaregiverDashboard';
+import CaregiverDashboard from '@/components/caregiver/CaregiverDashboard';
 import CaregiverBottomNavigation from '@/components/CaregiverBottomNavigation';
+import CaregiverProfileSettings from '@/components/caregiver/CaregiverProfileSettings';
 import AuthFlow from '@/components/auth/AuthFlow';
 import Footer from '@/components/Footer';
 import NotFound from "./NotFound.tsx";
@@ -19,7 +20,7 @@ import { toast } from "../hooks/use-toast.ts";
 import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const [searchParams] = useSearchParams();
   const [userProfile, setUserProfile] = useState<any>(null);
   const [profileType, setProfileType] = useState<'warrior' | 'caregiver' | null>(null);
@@ -28,6 +29,7 @@ const Index = () => {
   const [showCaregiverDashboard, setShowCaregiverDashboard] = useState(false);
   const [showCaregiverTabs, setShowCaregiverTabs] = useState(false);
   const [showAuth, setShowAuth] = useState(true);
+  const [showCaregiverProfile, setShowCaregiverProfile] = useState(false);
 
   // Handle tab parameter for direct navigation
   useEffect(() => {
@@ -36,14 +38,14 @@ const Index = () => {
       setActiveTab(tab);
     }
   }, [searchParams]);
-
-
-
+  
   useEffect(() => {
     if (user && !profileType) {
       handleProfilefetch();
     }
   }, [user, profileType]);
+  
+//=======================================//
 
 
   const handleAuthComplete = (profile: any) => {
@@ -52,7 +54,7 @@ const Index = () => {
     //console.log("running handleAuthComplete, profile set;", profile);
   };
 
-  const handleProfileSelect = (type: 'warrior' | 'caregiver') => {
+  const handleProfileSelect = (type: 'warrior' | 'caregiver' | null) => {
     setProfileType(type);
     setShowCaregiverDashboard(type === 'caregiver');
     setShowCaregiverTabs(false);
@@ -65,22 +67,28 @@ const Index = () => {
     setShowCaregiverTabs(false);
   };
 
+  const handleCareGiverModeSwitch = () => {
+    setShowCaregiverDashboard(false);
+    setShowCaregiverTabs(true);
+  }
   const handleCaregiverBack = () => {
     if (showCaregiverTabs) {
       setShowCaregiverTabs(false);
       setShowCaregiverDashboard(true);
     } else {
-      setShowCaregiverDashboard(false);
-      setProfileType(null);
+      setShowCaregiverTabs(true);
     }
   };
 
-  const handleCaregiverSignOut = () => {
-    setUserProfile(null);
-    setProfileType(null);
-    setShowCaregiverDashboard(false);
-    setShowCaregiverTabs(false);
-    setShowAuth(true);
+  const handleCaregiverSignOut = async () => {
+    console.log("handling caregiver sign out");
+    await signOut();
+    // Let the auth state change handle the navigation back to AuthFlow
+    // Don't manually set state as it interferes with the natural auth flow
+  };
+
+  const handleCaregiverProfile = () => {
+    setShowCaregiverProfile(true);
   };
 
 const handleProfilefetch = async () => {
@@ -97,7 +105,7 @@ const handleProfilefetch = async () => {
     // Case 1: profile not found
     if (status === 406 || data.role === null) {
       console.log("No profile found for user, prompting selection...");
-      setProfileType(null);
+      handleProfileSelect(null);
       setShowAuth(true); // still authenticated, just no profile yet
       return;
     }
@@ -105,7 +113,7 @@ const handleProfilefetch = async () => {
     // Case 2: found successfully
     if (error) throw error;
     console.log("Fetched profile role:", data.role);
-    setProfileType(data.role);
+    handleProfileSelect(data.role);
     setShowAuth(false);
 
   } catch (error: any) {
@@ -142,15 +150,52 @@ const handleProfilefetch = async () => {
   // Show profile selector if authenticated but no profile type selected
   console.log("userProfile:", userProfile, "profileType:", profileType);
 
+  console.log("caregiver dashboard state:", showCaregiverDashboard, "caregiver tabs state:", showCaregiverTabs);
+  // Show caregiver profile settings
+  if (showCaregiverProfile && profileType === 'caregiver') {
+    return (
+      <div className="min-h-screen cella-gradient flex flex-col">
+        <div className="flex-1 pb-20">
+          <CaregiverProfileSettings
+            onBack={() => setShowCaregiverProfile(false)}
+            children={[]} // Empty for now - will be populated when connected to real child data
+            onProfileTypeChange={(type) => {
+              if (type === null) {
+                // Sign out
+                setUserProfile(null);
+                setProfileType(null);
+                setShowCaregiverDashboard(false);
+                setShowCaregiverTabs(false);
+                setShowCaregiverProfile(false);
+                setShowAuth(true);
+                return;
+              }
+              setProfileType(type);
+              if (type === 'caregiver') {
+                setShowCaregiverDashboard(true);
+                setShowCaregiverTabs(false);
+                setShowCaregiverProfile(false);
+              }
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   // Show caregiver dashboard initially for caregivers
   if (showCaregiverDashboard) {
     return (
       <div className="min-h-screen cella-gradient flex flex-col">
         <div className="flex-1 pb-20">
-          <CaregiverDashboard onNavigateToTabs={() => setShowCaregiverTabs(true)} />
+          <CaregiverDashboard onNavigateToTabs={handleCareGiverModeSwitch} />
         </div>
-        <Footer />
+        <Footer
+          showNavigation={true}
+          navigationType="caregiver-dashboard"
+          onSignOut={handleCaregiverSignOut}
+          onProfile={handleCaregiverProfile}
+        />
       </div>
     );
   }
@@ -226,10 +271,10 @@ const handleProfilefetch = async () => {
         {renderActiveTab()}
       </div>
       <Footer
-        showNavigation={profileType === 'patient'}
+        showNavigation={profileType === 'warrior'}
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        navigationType="patient"
+        navigationType="warrior"
       />
     </div>
   );

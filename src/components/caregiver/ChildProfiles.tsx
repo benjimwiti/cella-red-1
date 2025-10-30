@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,9 +19,10 @@ interface ChildProfilesProps {
   children: ChildProfile[];
   onSelectChild: (child: ChildProfile) => void;
   onAddChild: () => void;
+  onBack: () => void;
 }
 
-const ChildProfiles = ({ children, onSelectChild, onAddChild }: ChildProfilesProps) => {
+const ChildProfiles = ({ onBack, children, onSelectChild, onAddChild }: ChildProfilesProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'good': return 'bg-green-100 text-green-800 border-green-200';
@@ -43,12 +44,21 @@ const ChildProfiles = ({ children, onSelectChild, onAddChild }: ChildProfilesPro
   return (
     <div className="min-h-screen cella-gradient">
       <div className="w-full max-w-2xl mx-auto px-4 py-6">
+         <Button
+          variant="ghost"
+          size="sm"
+          onClick={onBack}
+          className="text-foreground"
+        >
+          <ArrowLeft className="w-4 h-4 mr-1" />
+          Back
+        </Button>
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-brand-charcoal mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
             Your Children
           </h1>
-          <p className="text-brand-charcoal/60">
+          <p className="text-foreground/60">
             Manage health tracking for each child
           </p>
         </div>
@@ -64,8 +74,8 @@ const ChildProfiles = ({ children, onSelectChild, onAddChild }: ChildProfilesPro
                 <Plus className="w-6 h-6 text-brand-red" />
               </div>
               <div className="text-center sm:text-left">
-                <h3 className="font-medium text-brand-charcoal">Add Another Child</h3>
-                <p className="text-sm text-brand-charcoal/60">Create a new health profile</p>
+                <h3 className="font-medium text-foreground">Add Another Child</h3>
+                <p className="text-sm text-foreground/60">Create a new health profile</p>
               </div>
             </div>
           </CardContent>
@@ -74,7 +84,7 @@ const ChildProfiles = ({ children, onSelectChild, onAddChild }: ChildProfilesPro
         {/* Children Grid */}
         {children.length > 0 ? (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-brand-charcoal mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Active Profiles ({children.length})
             </h2>
             
@@ -100,10 +110,10 @@ const ChildProfiles = ({ children, onSelectChild, onAddChild }: ChildProfilesPro
                       <div className="flex-1 min-w-0 space-y-2">
                         <div className="flex items-start justify-between">
                           <div>
-                            <h3 className="font-semibold text-brand-charcoal text-lg truncate">
+                            <h3 className="font-semibold text-foreground text-lg truncate">
                               {child.name}
                             </h3>
-                            <p className="text-brand-charcoal/60 text-sm">
+                            <p className="text-foreground/60 text-sm">
                               {child.age} years old
                               {child.genotype && ` • ${child.genotype}`}
                             </p>
@@ -124,7 +134,7 @@ const ChildProfiles = ({ children, onSelectChild, onAddChild }: ChildProfilesPro
                         </Badge>
 
                         {/* Last Activity */}
-                        <p className="text-xs text-brand-charcoal/50">
+                        <p className="text-xs text-foreground/50">
                           Last activity: {child.lastActivity}
                         </p>
 
@@ -148,10 +158,10 @@ const ChildProfiles = ({ children, onSelectChild, onAddChild }: ChildProfilesPro
             <div className="w-24 h-24 bg-brand-red/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <div className="text-4xl">👶</div>
             </div>
-            <h3 className="text-lg font-medium text-brand-charcoal mb-2">
+            <h3 className="text-lg font-medium text-foreground mb-2">
               No children added yet
             </h3>
-            <p className="text-brand-charcoal/60 mb-6">
+            <p className="text-foreground/60 mb-6">
               Add your first child to start tracking their health journey
             </p>
             <Button 

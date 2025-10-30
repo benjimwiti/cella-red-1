@@ -133,8 +133,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-  };
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const projectRef = supabaseUrl.split('//')[1].split('.')[0]; // e.g. "wnmmtawxyuionwhbfnbh"
+    const storageKey = `sb-${projectRef}-auth-token`;
+
+    const {data, error} = await supabase.auth.signOut();
+    console.log("attempting sign out:", {data, error});
+    if(!error) {
+      localStorage.removeItem(storageKey);
+      console.log('✅ Signed out successfully');
+    } else {
+      console.error('Error signing out:', error);
+    }
+};
+
 
 
 

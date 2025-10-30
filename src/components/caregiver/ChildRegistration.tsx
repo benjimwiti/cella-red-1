@@ -71,6 +71,7 @@ const ChildRegistration = ({ onBack, onComplete }: ChildRegistrationProps) => {
   const nextStep = () => {
     if (validateStep(step)) {
       if (step < 3) {
+        console.log("proceeding to step", step + 1);
         setStep(step + 1);
       } else {
         onComplete(childData);
@@ -86,8 +87,8 @@ const ChildRegistration = ({ onBack, onComplete }: ChildRegistrationProps) => {
   const renderStep1 = () => (
     <Card className="glass-effect">
       <CardHeader>
-        <CardTitle className="text-brand-charcoal">Child Details</CardTitle>
-        <p className="text-brand-charcoal/60 text-sm">Tell us about your child</p>
+        <CardTitle className="text-foreground">Child Details</CardTitle>
+        <p className="text-foreground/60 text-sm">Tell us about your child</p>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
@@ -111,10 +112,10 @@ const ChildRegistration = ({ onBack, onComplete }: ChildRegistrationProps) => {
               onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
               className="h-12 pr-10"
             />
-            <Calendar className="absolute right-3 top-3 h-6 w-6 text-brand-charcoal/40" />
+            <Calendar className="absolute right-3 top-3 h-6 w-6 text-foreground/40" />
           </div>
           {childData.dateOfBirth && (
-            <p className="text-sm text-brand-charcoal/60">
+            <p className="text-sm text-foreground/60">
               Age: {calculateAge(childData.dateOfBirth)} years old
             </p>
           )}
@@ -187,8 +188,8 @@ const ChildRegistration = ({ onBack, onComplete }: ChildRegistrationProps) => {
   const renderStep2 = () => (
     <Card className="glass-effect">
       <CardHeader>
-        <CardTitle className="text-brand-charcoal">Caregiver Contact</CardTitle>
-        <p className="text-brand-charcoal/60 text-sm">We'll use this for alerts and reports</p>
+        <CardTitle className="text-foreground">Caregiver Contact</CardTitle>
+        <p className="text-foreground/60 text-sm">We'll use this for alerts and reports</p>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
@@ -201,7 +202,7 @@ const ChildRegistration = ({ onBack, onComplete }: ChildRegistrationProps) => {
             placeholder="+1 (555) 123-4567"
             className="h-12"
           />
-          <p className="text-xs text-brand-charcoal/50">For emergency alerts and medication reminders</p>
+          <p className="text-xs text-foreground/50">For emergency alerts and medication reminders</p>
         </div>
 
         <div className="space-y-2">
@@ -214,7 +215,7 @@ const ChildRegistration = ({ onBack, onComplete }: ChildRegistrationProps) => {
             placeholder="your@email.com"
             className="h-12"
           />
-          <p className="text-xs text-brand-charcoal/50">For health reports and appointment reminders</p>
+          <p className="text-xs text-foreground/50">For health reports and appointment reminders</p>
         </div>
       </CardContent>
     </Card>
@@ -223,8 +224,8 @@ const ChildRegistration = ({ onBack, onComplete }: ChildRegistrationProps) => {
   const renderStep3 = () => (
     <Card className="glass-effect">
       <CardHeader>
-        <CardTitle className="text-brand-charcoal">Profile Photo</CardTitle>
-        <p className="text-brand-charcoal/60 text-sm">Add a photo to personalize the profile (optional)</p>
+        <CardTitle className="text-foreground">Profile Photo</CardTitle>
+        <p className="text-foreground/60 text-sm">Add a photo to personalize the profile (optional)</p>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex flex-col items-center space-y-4">
@@ -250,22 +251,22 @@ const ChildRegistration = ({ onBack, onComplete }: ChildRegistrationProps) => {
             Upload Photo
           </Button>
 
-          <p className="text-xs text-brand-charcoal/50 text-center max-w-sm">
+          <p className="text-xs text-foreground/50 text-center max-w-sm">
             You can always add or change the photo later in settings
           </p>
         </div>
 
         {/* Summary */}
         <div className="bg-brand-red/5 rounded-xl p-4 space-y-2">
-          <h4 className="font-medium text-brand-charcoal">Profile Summary:</h4>
-          <p className="text-sm text-brand-charcoal/70">
+          <h4 className="font-medium text-foreground">Profile Summary:</h4>
+          <p className="text-sm text-foreground/70">
             <strong>{childData.name}</strong> • {calculateAge(childData.dateOfBirth)} years old
           </p>
-          <p className="text-sm text-brand-charcoal/70">
+          <p className="text-sm text-foreground/70">
             {childData.gender} • {childData.relation}
           </p>
           {childData.genotype && (
-            <p className="text-sm text-brand-charcoal/70">
+            <p className="text-sm text-foreground/70">
               Genotype: {childData.genotype}
             </p>
           )}
@@ -283,13 +284,13 @@ const ChildRegistration = ({ onBack, onComplete }: ChildRegistrationProps) => {
             variant="ghost"
             size="sm"
             onClick={step === 1 ? onBack : () => setStep(step - 1)}
-            className="text-brand-charcoal"
+            className="text-foreground"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back
           </Button>
           
-          <div className="text-sm text-brand-charcoal/60">
+          <div className="text-sm text-foreground/60">
             Step {step} of 3
           </div>
         </div>
